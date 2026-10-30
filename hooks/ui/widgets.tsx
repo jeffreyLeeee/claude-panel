@@ -25,7 +25,6 @@ import type { Actions, PanelData, Press, Ui } from './actions'
 import { diffBody } from './diffBody'
 import { DIVIDER_SVG, iconSvg } from './svg'
 
-// 圖示的名稱有字才浮出提示：wiki 的勾選框（x、空白）、⋯ 選單（...）不用。
 const hasTooltip = (label: string) => /[A-Za-z]/.test(label)
 
 type Row = {
@@ -90,7 +89,6 @@ export function makeWidgets(ui: Ui, isTerminal: boolean, columns: number, press:
           <Button key={key} label={ICON_BUTTON_LABEL} plain onPress={onPress} />
         </Box>
         {hasTooltip(label) && (
-          // 4. 指到圖示時浮出的名稱（外框有 key，就是 hover scope）：平常不畫，貼著外框右下往左長，不推動旁邊的東西。
           <Box position="absolute" top={1} right={0} display="none" hover={{ display: 'flex' }} backgroundColor={MENU_BG} paddingX={1} flexShrink={0}>
             <Text wrap="truncate-end">{label}</Text>
           </Box>
