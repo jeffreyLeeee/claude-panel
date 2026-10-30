@@ -28,8 +28,8 @@ const WIN_OPEN = powershellArgv(
     '$vim = (Get-Command vim.exe -ErrorAction SilentlyContinue).Source',
     '$git = (Get-Command git.exe -ErrorAction SilentlyContinue).Source',
     "if (-not $vim -and $git) { $p = Join-Path (Split-Path (Split-Path $git)) 'usr\\bin\\vim.exe'; if (Test-Path $p) { $vim = $p } }",
-    "if ($vim) { $env:SOAP_VIM = $vim; Start-Process cmd.exe -ArgumentList '/c call \"%SOAP_VIM%\" \"%SOAP_PATH%\" & type nul > \"%SOAP_DONE%\"' } " +
-      "else { Start-Process cmd.exe -WindowStyle Hidden -ArgumentList '/c start \"\" /wait notepad \"%SOAP_PATH%\" & type nul > \"%SOAP_DONE%\"' }",
+    "if ($vim) { $env:MODS_VIM = $vim; Start-Process cmd.exe -ArgumentList '/c call \"%MODS_VIM%\" \"%MODS_PATH%\" & type nul > \"%MODS_DONE%\"' } " +
+      "else { Start-Process cmd.exe -WindowStyle Hidden -ArgumentList '/c start \"\" /wait notepad \"%MODS_PATH%\" & type nul > \"%MODS_DONE%\"' }",
   ].join('\n'),
 )
 
@@ -37,7 +37,7 @@ const WIN_OPEN = powershellArgv(
 export async function openVim(io: Io, path: string, done: string): Promise<string | undefined> {
   if (await isWindows(io)) {
     const win = (p: string) => p.replace(/\//g, '\\')
-    await runOk(io, WIN_OPEN, 'Start-Process', { env: { SOAP_PATH: win(path), SOAP_DONE: win(done) } })
+    await runOk(io, WIN_OPEN, 'Start-Process', { env: { MODS_PATH: win(path), MODS_DONE: win(done) } })
 
     return undefined
   }

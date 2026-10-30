@@ -1,4 +1,4 @@
-// Files 分頁點開的檔案內容，畫在 Soap Panel 裡蓋掉分頁；.md 畫成 Markdown，其他畫成程式碼。
+// Files 分頁點開的檔案內容，畫在 Panel 裡蓋掉分頁；.md 畫成 Markdown，其他畫成程式碼。
 
 import type { FileView, FilesView } from '../../types'
 import { fileSteps } from '../files/list'

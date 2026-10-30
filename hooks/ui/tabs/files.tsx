@@ -8,7 +8,7 @@ import type { TabBody, TabContext } from './context'
 
 // Files 分頁（列不縮排，左邊只留面板內容共用的一格）：session 資料夾（或點進去的子資料夾）裡有什麼。資料夾在前、點了進去。
 // 子資料夾裡最上面是 ← Back（b）回上一層、旁邊是路徑；session 資料夾本身兩個都不畫，也就走不出去。
-// 檔案列名稱和大小，點了在 Soap Panel 裡看內容（fileView）；register 只存前 FILES_ROW_LIMIT 筆，其餘寫「… N more」。
+// 檔案列名稱和大小，點了在 Panel 裡看內容（fileView）；register 只存前 FILES_ROW_LIMIT 筆，其餘寫「… N more」。
 // 最上面的搜尋框有字時，改列整個 session 資料夾裡檔名符合的檔案（searchBody）。
 // 每列最右邊有 ⋯，按了在那列旁邊浮出選單（menuCard），蓋在別列上面、不推動列表。
 export const filesTab: TabBody = ctx => {

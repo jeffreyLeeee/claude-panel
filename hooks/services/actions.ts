@@ -59,7 +59,7 @@ async function scan(io: ServicesIo) {
 // Windows 交給 KILL_ARGV 的 PowerShell，macOS 先用 ps 找出子孫再一起 kill -9。
 async function killTree(io: ServicesIo, pid: number) {
   if (await isWindows(io)) {
-    await runOk(io, KILL_ARGV, 'Stop', { env: { SOAP_PID: String(pid) } })
+    await runOk(io, KILL_ARGV, 'Stop', { env: { MODS_PID: String(pid) } })
 
     return
   }
@@ -121,7 +121,7 @@ export async function runServiceAction(io: ServicesIo, target: Service, action: 
     if (action === 'restart') {
       await io.sleep(RESTART_GAP_MS)
       const argv = (await isWindows(io)) ? LAUNCH_ARGV : MAC_LAUNCH_ARGV
-      const launch = await runOk(io, argv, 'Restart', { env: { SOAP_CMD: current.command, SOAP_DIR: current.dir } })
+      const launch = await runOk(io, argv, 'Restart', { env: { MODS_CMD: current.command, MODS_DIR: current.dir } })
       watchRestart(io, `${current.tool} · ${current.name}`, Number(launch.stdout.trim()))
       io.toast(`Restarted ${current.tool} · ${current.name}`)
     } else {

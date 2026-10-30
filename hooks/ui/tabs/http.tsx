@@ -150,7 +150,7 @@ function requestList(ctx: TabContext) {
       onPress: () => a.openHttpRequest(r.id),
     })
   }
-  // 一個資料夾（或 .soap/http 本身）的請求：一個檔一個請求的一列就是名稱；有好幾個請求的檔案，檔名當標題、底下一列一個。
+  // 一個資料夾（或 .mods/http 本身）的請求：一個檔一個請求的一列就是名稱；有好幾個請求的檔案，檔名當標題、底下一列一個。
   const block = (requests: HttpRequest[], indent: number) => {
     const groups = [...new Set(requests.filter(r => !r.isOwnFile).map(r => r.file))]
 

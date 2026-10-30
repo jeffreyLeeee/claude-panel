@@ -3,7 +3,7 @@ import { expect, mock, test } from 'claude-code/testing'
 import { ARMED_TINT } from '../../hooks/config'
 import { type TestOn, endTurn, fail, fsEntry, mountPane, ok, posix, stubPanel } from '../test-fixtures'
 
-const TASKS = '/proj/.soap/tasks'
+const TASKS = '/proj/.mods/tasks'
 
 const LOGIN = `description: >
   Users need SSO.
@@ -16,12 +16,12 @@ verify:
   - npm test -- login.spec.ts
 `
 
-// .soap/tasks 底下的計劃：路徑（相對 /proj/.soap/tasks）→ 內容和修改時間。
+// .mods/tasks 底下的計劃：路徑（相對 /proj/.mods/tasks）→ 內容和修改時間。
 type Plans = Record<string, { text: string; mtimeMs: number }>
 
 type Run = ReturnType<typeof ok>
 
-// folders 是 feature 資料夾；一個都沒有就當 .soap/tasks 不存在（列不出來）。
+// folders 是 feature 資料夾；一個都沒有就當 .mods/tasks 不存在（列不出來）。
 // now：給 null 時測試自己用 mock.clock；run：跑的指令（argv）給了結果就用它的，沒給都成功。
 function tasks(on: TestOn, state: { folders: string[]; plans: Plans }, { now = 0, run }: { now?: number | null; run?: (argv: readonly string[]) => Run | undefined } = {}) {
   const planAt = (path: string | undefined) => {
@@ -87,24 +87,24 @@ test('the Spec sub tab of Docs lists the plans newest first, opens one to its De
   await ui.press({ key: 'spec:do' })
   expect(prompts).toHaveLength(1)
   expect(prompts[0]).toMatchObject({ asUser: true })
-  expect(prompts[0]?.text).toMatch(/^Implement the plan in `\.soap\/tasks\/login\/plan\.yaml`\./)
+  expect(prompts[0]?.text).toMatch(/^Implement the plan in `\.mods\/tasks\/login\/plan\.yaml`\./)
   expect(toasts.at(-1)).toBe('Sent to Claude')
 
   // 格式不對的：紅字列出哪裡不對，讀得到的照樣畫。
   await ui.press({ key: 'spec:back' })
   await ui.press({ key: 'spec:item:search' })
-  expect(await ui.find({ type: 'Text', text: '.soap/tasks/search/plan.yaml has problems:' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: '.mods/tasks/search/plan.yaml has problems:' })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: '! use "goals", not "goal"' })).toBeDefined()
   expect(await ui.find({ type: 'Markdown', text: 'x' })).toBeDefined()
   // 格式不對的不送，先叫人修。
   await ui.press({ key: 'spec:do' })
   expect(prompts).toHaveLength(1)
-  expect(toasts.at(-1)).toBe('Fix .soap/tasks/search/plan.yaml first: missing "goals"')
+  expect(toasts.at(-1)).toBe('Fix .mods/tasks/search/plan.yaml first: missing "goals"')
 
   // 沒有 plan.yaml 的資料夾：說讀不到。
   await ui.press({ key: 'spec:back' })
   await ui.press({ key: 'spec:item:draft' })
-  expect(await ui.find({ type: 'Text', text: /^! Couldn't read \.soap\/tasks\/draft\/plan\.yaml/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /^! Couldn't read \.mods\/tasks\/draft\/plan\.yaml/ })).toBeDefined()
   await ui.press({ key: 'spec:back' })
   expect(await ui.find({ key: 'spec:item:login' })).toBeDefined()
   await ui.unmount()
@@ -257,15 +257,15 @@ test('the trash button of a spec asks with a check first, then deletes its whole
   }
 })
 
-test('with no .soap/tasks the Spec sub tab says to run /soap-mods:plan, and at turn end it picks up a new plan and rereads the open one', async ($, on) => {
+test('with no .mods/tasks the Spec sub tab says to run /mods:plan, and at turn end it picks up a new plan and rereads the open one', async ($, on) => {
   const state = { folders: [] as string[], plans: {} as Plans }
   tasks(on, state)
 
   const ui = await mountPane($)
   await ui.press({ key: 'tab:docs' })
-  expect(await ui.find({ type: 'Text', text: 'No specs yet. Run /soap-mods:plan to write one.' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: 'No specs yet. Run /mods:plan to write one.' })).toBeDefined()
 
-  // Claude 跑了 /soap-mods:plan：回合結束後清單出現。
+  // Claude 跑了 /mods:plan：回合結束後清單出現。
   state.folders = ['login']
   state.plans['login/plan.yaml'] = { text: LOGIN, mtimeMs: 1 }
   await endTurn($, ui)
@@ -302,18 +302,18 @@ test('writing a plan.yaml with Write or Edit checks it: a broken one adds what t
 
   const plan = `${TASKS}/login/plan.yaml`
   const broken = await $.tool.call({ tool: 'Write', file_path: plan, content: 'description: x\ngoal:\n  - y\n' })
-  expect(broken.context?.at(-1)).toMatch(/is not a valid soap-mods plan\.yaml[\s\S]*- missing "goals"[\s\S]*- use "goals", not "goal"/)
+  expect(broken.context?.at(-1)).toMatch(/is not a valid mods plan\.yaml[\s\S]*- missing "goals"[\s\S]*- use "goals", not "goal"/)
   expect(toasts.at(-1)).toMatch(/^plan\.yaml has 5 problems: missing "goals"/)
   // Windows 的路徑（反斜線）一樣檢查。
-  const onWindows = await $.tool.call({ tool: 'Write', file_path: 'C:\\proj\\.soap\\tasks\\login\\plan.yaml', content: 'goal: x' })
-  expect(onWindows.context?.at(-1)).toMatch(/is not a valid soap-mods plan\.yaml/)
+  const onWindows = await $.tool.call({ tool: 'Write', file_path: 'C:\\proj\\.mods\\tasks\\login\\plan.yaml', content: 'goal: x' })
+  expect(onWindows.context?.at(-1)).toMatch(/is not a valid mods plan\.yaml/)
 
   // Edit 修好之後：整份重讀，沒問題就不加東西。
   await $.tool.call({ tool: 'Write', file_path: plan, content: LOGIN.replace('goals:', 'goal:') })
   const fixed = await $.tool.call({ tool: 'Edit', file_path: plan, old_string: 'goal:', new_string: 'goals:' })
   expect(fixed.context ?? []).toEqual([])
 
-  // 不是 .soap/tasks/<feature>/plan.yaml 的不看。
+  // 不是 .mods/tasks/<feature>/plan.yaml 的不看。
   const count = toasts.length
   const other = await $.tool.call({ tool: 'Write', file_path: '/proj/notes/plan.yaml', content: 'goal: x' })
   expect(other.context ?? []).toEqual([])

@@ -6,11 +6,11 @@ import type { WikiDraft, WikiModel } from '../../types'
 import { WIKI_CHECKED_KEY, WIKI_DIR, WIKI_DRAFTS_DIR, WIKI_MODELS } from '../config'
 import { escapeRegExp } from '../text'
 
-/** A page's text as it is handed around: its path under `.soap/wiki` and its Markdown. */
+/** A page's text as it is handed around: its path under `.mods/wiki` and its Markdown. */
 export type PageText = { path: string; text: string }
 
 /**
- * Whether `path` (relative to `.soap/wiki`, with `/`) names a page: a `.md` file with no empty, `.` or `..` part, no
+ * Whether `path` (relative to `.mods/wiki`, with `/`) names a page: a `.md` file with no empty, `.` or `..` part, no
  * part starting with `.` (the drafts folder, hidden files), and nothing that reaches outside (`/` first, `\`, `:`).
  */
 export function isPagePath(path: string): boolean {
@@ -21,7 +21,7 @@ export function isPagePath(path: string): boolean {
 
 export const wikiPath = (path: string) => `${WIKI_DIR}/${path}`
 export const DRAFTS_PATH = wikiPath(WIKI_DRAFTS_DIR)
-/** A draft file as a path under `.soap/wiki` (`.drafts/<id>`). */
+/** A draft file as a path under `.mods/wiki` (`.drafts/<id>`). */
 export const draftPath = (id: string) => `${WIKI_DRAFTS_DIR}/${id}`
 
 /** The id of a draft path `.drafts/<id>.md`; undefined for a page or anything deeper. */
@@ -96,13 +96,13 @@ export function draftPages(d: ParsedDraft | WikiDraft): { from?: string; to?: st
 
 const DRAFT_FILE = new RegExp(`(^|/)${escapeRegExp(DRAFTS_PATH)}/[^/]+\\.md$`)
 
-/** Whether `path` (any separator) is a draft file: `…/.soap/wiki/.drafts/<name>.md`. */
+/** Whether `path` (any separator) is a draft file: `…/.mods/wiki/.drafts/<name>.md`. */
 export const isDraftPath = (path: string) => DRAFT_FILE.test(path.replace(/\\/g, '/'))
 
 /** What Claude reads after writing a draft file whose first line says nothing the Wiki tab understands. */
 export function draftFixNote(path: string): string {
   return [
-    `${path} is not a valid soap-mods wiki draft: the Wiki tab skips it. Make its first line one of:`,
+    `${path} is not a valid mods wiki draft: the Wiki tab skips it. Make its first line one of:`,
     '- `target: <page>.md`, a blank line, then the whole page as Markdown (a new page, or one that replaces the page)',
     '- `move: <page>.md -> <new page>.md` (nothing else in the file)',
     '- `delete: <page>.md` (nothing else in the file)',

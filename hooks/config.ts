@@ -4,7 +4,7 @@ import type { FileKind, HttpPage, MergeOp, SubTabs, TabId, WikiModel } from '../
 import type { FileGroupId } from './git/parse'
 
 // 面板的 id 在 register.tsx：引擎要在那裡直接看到它們的值。
-export const PANEL_TITLE = 'Soap Panel'
+export const PANEL_TITLE = 'Panel'
 // 兩邊都一樣的段落，衝突的前後各留幾行，其餘收成「⋯ N unchanged lines」。
 export const MERGE_CONTEXT = 3
 // 合併畫面每一欄的寬度；三欄加起來不到 100%，剩下的當欄距。
@@ -191,11 +191,11 @@ export const FILES_WALK_SKIP: readonly string[] = ['.git', 'node_modules']
 // 點檔案看內容：比這大的不讀（bytes）。
 export const FILE_VIEW_MAX_BYTES = 1_000_000
 // Spec 子分頁：plan skill 把每個 feature 的計劃寫在這個資料夾（相對 session 資料夾）底下的 <feature>/plan.yaml。
-export const SPEC_DIR = '.soap/tasks'
+export const SPEC_DIR = '.mods/tasks'
 export const PLAN_FILE = 'plan.yaml'
 // Wiki 子分頁：頁面是這個資料夾（相對 session 資料夾）底下的 .md；勾了哪幾頁存在 $.store 的「WIKI_CHECKED_KEY:session 資料夾」，
 // Distill 和 wiki skill 的草稿放在 WIKI_DRAFTS_DIR（. 開頭的資料夾不算頁面）。頁面最多列幾頁。
-export const WIKI_DIR = '.soap/wiki'
+export const WIKI_DIR = '.mods/wiki'
 export const WIKI_CHECKED_KEY = 'wiki.checked'
 export const WIKI_DRAFTS_DIR = '.drafts'
 export const WIKI_PAGE_LIMIT = 500
@@ -216,7 +216,7 @@ export const WIKI_DISTILL_TIMEOUT_MS = 180_000
 
 // DB 分頁（SQL Server，經過 sqlcmd）：存連線的 $.store key、macOS Keychain 項目的 service 名稱。
 export const DB_STORE_KEY = 'db.connections'
-export const DB_KEYCHAIN_SERVICE = 'soap-mods-db'
+export const DB_KEYCHAIN_SERVICE = 'mods-db'
 // 結果最多留幾列、每格最多畫幾個字（多的截成「…」）；資料表最多列幾個；點資料表預覽幾列。
 export const DB_ROW_LIMIT = 200
 export const DB_CELL_WIDTH = 40
@@ -257,7 +257,7 @@ export const CI_SEARCH_DEBOUNCE_MS = 300
 export const CI_TRACE_MAX_CHARS = 60_000
 // GitLab token（每台 GitLab 主機一組）：macOS 存在 Keychain 的這個 service（account 是主機）；
 // Windows 是 DPAPI 密文。哪些主機存了 token（macOS 是記號、Windows 是密文）和登入的帳號放在 $.store 的 CI_STORE_KEY。
-export const CI_KEYCHAIN_SERVICE = 'soap-mods-gitlab'
+export const CI_KEYCHAIN_SERVICE = 'mods-gitlab'
 export const CI_STORE_KEY = 'ci.tokens'
 // Git 的 MR 子分頁（GitLab API，token 同 CI）：最多列幾個 MR。
 // 開著時跟 CI 一起每 CI_REFRESH_MS 看一次：點開的 MR 的 pipeline 在跑就重讀，不然隔 CI_IDLE_REFRESH_MS。
@@ -265,13 +265,13 @@ export const MR_LIST_LIMIT = 50
 // Tools 的 HTTP 子分頁：請求是這個資料夾（相對 session 資料夾）底下的 .http 檔，環境在 HTTP_ENV_FILE（REST Client／JetBrains 的格式）。
 // 選的環境存在 $.store 的 HTTP_ENV_KEY（依 session 資料夾）；機密（請求用到、環境檔沒有的變數）macOS 存在 Keychain 的 HTTP_KEYCHAIN_SERVICE，
 // Windows 是 DPAPI 密文，哪些存了放在 $.store 的 HTTP_STORE_KEY（依 session 資料夾、環境）。
-export const HTTP_DIR = '.soap/http'
+export const HTTP_DIR = '.mods/http'
 export const HTTP_ENV_FILE = 'http-client.env.json'
 export const HTTP_ENV_KEY = 'http.env'
 export const HTTP_STORE_KEY = 'http.secrets'
 // @prompt 填的值：$.store 的 HTTP_PROMPT_KEY，依 session 資料夾，每個環境共用。
 export const HTTP_PROMPT_KEY = 'http.prompts'
-export const HTTP_KEYCHAIN_SERVICE = 'soap-mods-http'
+export const HTTP_KEYCHAIN_SERVICE = 'mods-http'
 export const HTTP_TIMEOUT_MS = 30_000
 // 編輯頁的 Folder 選單裡「+ New folder」的值（資料夾名稱不會有冒號）。
 export const NEW_FOLDER = ':new'
@@ -279,7 +279,7 @@ export const NEW_FOLDER = ':new'
 export const HTTP_EDIT_DIR = `${HTTP_DIR}/.edit`
 export const HTTP_VIM_POLL_MS = 500
 // 交給系統預設 app 開的暫存檔放在 session 資料夾的這個資料夾，放超過 TMP_MAX_AGE_MS 的刪掉（見 tmp.ts）。
-export const TMP_DIR = '.soap/tmp'
+export const TMP_DIR = '.mods/tmp'
 export const TMP_MAX_AGE_MS = 86_400_000
 // Keychain 讀機密（GitLab token、DB 密碼、HTTP 的機密）會跳視窗等人輸入密碼，最多等這麼久。
 export const KEYCHAIN_TIMEOUT_MS = 120_000

@@ -50,7 +50,7 @@ const RAW_TRACE = [
 function ciWorld(on: TestOn, { hasToken = true, valid = [TOKEN], remote = `https://${HOST}/web-team/app.git` }: { hasToken?: boolean; valid?: string[]; remote?: string } = {}) {
   const runs: Run[] = []
   const fetches: Fetch[] = []
-  const store: Record<string, unknown> = hasToken ? { [CI_STORE_KEY]: { [HOST]: { secret: OLD_KEYCHAIN, user: 'soap' } } } : {}
+  const store: Record<string, unknown> = hasToken ? { [CI_STORE_KEY]: { [HOST]: { secret: OLD_KEYCHAIN, user: 'cptsoap' } } } : {}
   const keychain = fakeKeychain(hasToken ? { [HOST]: toHex(TOKEN) } : {})
   const world = { posts: [] as string[] }
   stubPanel(on, { root: '/repo', now: null })
@@ -77,7 +77,7 @@ function ciWorld(on: TestOn, { hasToken = true, valid = [TOKEN], remote = `https
     fetches.push(e)
     const { url } = e
     if (!valid.includes(e.init?.headers?.['PRIVATE-TOKEN'] ?? '')) return json(401, { message: '401 Unauthorized' })
-    if (url === `https://${HOST}/api/v4/user`) return json(200, { username: 'soap' })
+    if (url === `https://${HOST}/api/v4/user`) return json(200, { username: 'cptsoap' })
     if (e.init?.method === 'POST') {
       world.posts.push(url)
       if (url === `${API}/pipelines/1002/retry`) return json(201, pipeline(1002, 'develop', 'running'))
@@ -285,8 +285,8 @@ test('with no token the CI sub tab is a box to paste one; a token GitLab accepts
   expect(fromHex(world.keychain[HOST] ?? '')).toBe(TOKEN)
   // -T ""：誰來讀都要人按允許。
   const save = world.runs.find(r => r.argv[0] === 'security' && r.argv[1] === '-i')
-  expect(save?.init?.stdin).toContain(`-s soap-mods-gitlab -a ${HOST} -T "" -w `)
-  expect(world.store[CI_STORE_KEY]).toEqual({ [HOST]: { secret: KEYCHAIN, user: 'soap' } })
+  expect(save?.init?.stdin).toContain(`-s mods-gitlab -a ${HOST} -T "" -w `)
+  expect(world.store[CI_STORE_KEY]).toEqual({ [HOST]: { secret: KEYCHAIN, user: 'cptsoap' } })
   expect(JSON.stringify(world.store)).not.toContain(TOKEN)
   expect(world.runs.some(r => r.argv.some(a => a.includes(TOKEN) || a.includes(toHex(TOKEN))))).toBe(false)
   // 剛存的留在記憶體，不用再問 Keychain。
@@ -337,11 +337,11 @@ test("This branch opens the checked out branch's pipelines; a project the token 
 test("Claude's Bash may not read or use the GitLab token or the DB passwords; searching the code for their names still runs", async ($, on) => {
   ciWorld(on)
   on('tool.call', () => ({ result: { stdout: '', stderr: '' } as never }))
-  for (const command of ['security find-generic-password -s soap-mods-gitlab -w', 'security find-generic-password -s SOAP-MODS-DB -a x -w', "curl -H 'PRIVATE-TOKEN: x' https://git.example/api/v4/user"]) {
+  for (const command of ['security find-generic-password -s mods-gitlab -w', 'security find-generic-password -s MODS-DB -a x -w', "curl -H 'PRIVATE-TOKEN: x' https://git.example/api/v4/user"]) {
     const r = await $.tool.call({ tool: 'Bash', command })
-    expect(r.deny).toContain('Blocked by soap-mods')
+    expect(r.deny).toContain('Blocked by mods')
   }
-  for (const command of ['git status', 'grep -rn soap-mods-gitlab hooks', 'git log -S PRIVATE-TOKEN']) {
+  for (const command of ['git status', 'grep -rn mods-gitlab hooks', 'git log -S PRIVATE-TOKEN']) {
     const fine = await $.tool.call({ tool: 'Bash', command })
     expect(fine.deny).toBeUndefined()
   }

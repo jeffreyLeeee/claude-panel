@@ -4,7 +4,7 @@ import { canDelete, canRollback, groupFiles } from '../../git/parse'
 import { clampPage } from '../../text'
 import type { TabBody } from './context'
 
-// diff 分頁：未提交的變更，分 Staged／Unstaged／Untracked。點檔案：衝突的開三欄合併，其他看差異（都畫在 Soap Panel 裡）。
+// diff 分頁：未提交的變更，分 Staged／Unstaged／Untracked。點檔案：衝突的開三欄合併，其他看差異（都畫在 Panel 裡）。
 // 三組加起來一頁最多畫 FILE_PAGE 個，用最底下的換頁列（widgets 的 pager）換頁。
 // 每列右邊兩顆，都是按了換成打勾、再按才做：rollback 把檔案還原成 HEAD（HEAD 有的才有，衝突、改名、複製的除外），
 // 垃圾桶只刪掉檔案（檔案還在、不是衝突的才有）。

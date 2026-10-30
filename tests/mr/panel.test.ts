@@ -55,7 +55,7 @@ function mrWorld(on: TestOn, { hasToken = true, head = HEAD }: { hasToken?: bool
   const state = { approved: false, merged: false, conflict: false }
   // 給了就等它，GitLab 才回 approve（看等的時候畫什麼）。
   const held: { approve?: Promise<void> } = {}
-  const store: Record<string, unknown> = hasToken ? { [CI_STORE_KEY]: { [HOST]: { secret: OLD_KEYCHAIN, user: 'soap' } } } : {}
+  const store: Record<string, unknown> = hasToken ? { [CI_STORE_KEY]: { [HOST]: { secret: OLD_KEYCHAIN, user: 'cptsoap' } } } : {}
   const keychain = fakeKeychain(hasToken ? { [HOST]: toHex(TOKEN) } : {})
   const runs: (readonly string[])[] = []
   stubPanel(on, { root: '/repo', now: null })
@@ -113,11 +113,11 @@ function mrWorld(on: TestOn, { hasToken = true, head = HEAD }: { hasToken?: bool
         detailed_merge_status: state.conflict ? 'conflict' : state.approved ? 'mergeable' : 'not_approved',
         has_conflicts: state.conflict,
         head_pipeline: { id: 9, iid: 1193727, status: 'success', sha: '2139ca13ffff' },
-        merged_by: state.merged ? { name: 'Soap' } : null,
+        merged_by: state.merged ? { name: 'CptSoap' } : null,
       })
     }
     if (url === `${MR}/approvals`) {
-      return json(200, { approved_by: state.approved ? [{ user: { name: 'Soap', username: 'soap' } }] : [], approvals_left: state.approved ? 0 : 1, user_has_approved: state.approved, user_can_approve: true })
+      return json(200, { approved_by: state.approved ? [{ user: { name: 'CptSoap', username: 'cptsoap' } }] : [], approvals_left: state.approved ? 0 : 1, user_has_approved: state.approved, user_can_approve: true })
     }
     if (url.startsWith(`${MR}/discussions?`)) return json(200, DISCUSSIONS)
     if (url === `${API}/repository/files/${encodeURIComponent(PATH)}/raw?ref=${NOTE_SHA}`) return json(200, SEEN)
@@ -143,7 +143,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
     const world = mrWorld(on)
     const ui = await openMrTab($, surface)
 
-    expect(world.fetches[0]?.url).toBe(`${API}/merge_requests?state=opened&reviewer_username=soap&order_by=updated_at&per_page=50`)
+    expect(world.fetches[0]?.url).toBe(`${API}/merge_requests?state=opened&reviewer_username=cptsoap&order_by=updated_at&per_page=50`)
     expect(await ui.find({ type: 'Text', text: 'Review requests · 1' })).toBeDefined()
     await ui.press({ key: 'mr:item:676' })
     await ui.redraw()
@@ -195,7 +195,7 @@ test('Approve makes the merge request mergeable; Merge then asks twice (Confirm 
   await ui.press({ key: 'mr:merge' })
   await ui.redraw()
   expect(world.writes.at(-1)).toEqual({ method: 'PUT', url: `${MR}/merge`, body: { sha: HEAD_SHA } })
-  expect(await ui.find({ type: 'Text', text: /^Merged by Soap/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /^Merged by CptSoap/ })).toBeDefined()
   await ui.unmount()
 })
 

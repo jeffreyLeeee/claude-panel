@@ -12,7 +12,7 @@ export type TestOn = Parameters<TestBody>[1]
 
 // 面板的 props：引擎畫面板時一定會給，測試照實給一份。
 const PANE_PROPS = {
-  title: 'Soap Panel',
+  title: 'Panel',
   isFocused: true,
   bodyColumns: 60,
   placement: 'dock',
@@ -22,7 +22,7 @@ const PANE_PROPS = {
 
 // 面板打開時在 Files 分頁；測試大多從 Git 開始，掛上後先按到 Git。tab 給 'files' 就停在打開時的樣子。
 export async function mountPane($: TestEngine, surface: 'terminal' | 'desktop' = 'terminal', tab: 'git' | 'files' = 'git') {
-  const ui = await $.ui.mount({ plugin: 'soap-mods', surface, component: 'Pane', requestId: 'soap-panel', props: PANE_PROPS })
+  const ui = await $.ui.mount({ plugin: 'mods', surface, component: 'Pane', requestId: 'panel', props: PANE_PROPS })
   if (tab === 'git') await ui.press({ key: 'tab:git' })
 
   return ui
@@ -36,15 +36,15 @@ export async function openTool(ui: Pane, sub: 'services' | 'db' | 'http') {
   await ui.press({ key: `sub:${sub}` })
 }
 
-// 使用者打 /soap-mods:open 打開面板。
+// 使用者打 /mods:open 打開面板。
 export const openPanel = ($: TestEngine) =>
-  $.command.run({ command: 'soap-mods:open', args: '', origin: { kind: 'composer' }, presentation: { isFullscreen: true, columns: 120 } })
+  $.command.run({ command: 'mods:open', args: '', origin: { kind: 'composer' }, presentation: { isFullscreen: true, columns: 120 } })
 
 // 面板開起來要的引擎回應：開／列／關 pane（打開了就在前面）、session 資料夾（給函式就每次問它）、時間、回合結束。now 給 null：測試自己用 mock.clock
 // （clock.now 先登記的算數，兩個都登記的話 mock.clock 推不動時間）。
 export function stubPanel(on: TestOn, { root = '/repo', now = 0 }: { root?: string | (() => string); now?: number | null } = {}) {
   on('ui.open', () => ({ value: { isPlaced: true } }))
-  on('ui.panes', () => ({ value: [{ id: 'soap-panel', title: 'Soap Panel', isShown: true, isFocused: true, isPlaced: true }] }))
+  on('ui.panes', () => ({ value: [{ id: 'panel', title: 'Panel', isShown: true, isFocused: true, isPlaced: true }] }))
   on('ui.close', () => ({ value: undefined }))
   on('session.root', () => ({ value: typeof root === 'string' ? root : root() }))
   on('turn.complete', () => ({ text: '' }))
@@ -63,11 +63,11 @@ export function recordToasts(on: TestOn) {
   return toasts
 }
 
-// 交給預設 app 開的東西：寫進 .soap/tmp 的暫存檔記在 written（路徑 → 內容），isFailing 時 open 失敗。
+// 交給預設 app 開的東西：寫進 .mods/tmp 的暫存檔記在 written（路徑 → 內容），isFailing 時 open 失敗。
 // 同一個事件只能登記一次，所以各個 world 在自己的 fs.write、process.run 裡先問它：write 接下暫存檔回 true，
 // open 是 open 就回結果，不是回 undefined。
 export function tempFiles() {
-  const isTemp = (path: string | undefined) => posix(path)?.includes('/.soap/tmp/') === true
+  const isTemp = (path: string | undefined) => posix(path)?.includes('/.mods/tmp/') === true
   const tmp = {
     written: {} as Record<string, string>,
     opens: [] as string[][],
@@ -95,7 +95,7 @@ export function stubOldState(on: TestOn, old: Record<string, unknown>) {
 
     return next(e)
   })
-  on('state.get', (_$, e, next) => (e.plugin === 'soap-mods' && e.key in old ? { value: { value: old[e.key], version: 1 } } : next(e)) as never)
+  on('state.get', (_$, e, next) => (e.plugin === 'mods' && e.key in old ? { value: { value: old[e.key], version: 1 } } : next(e)) as never)
 }
 
 // $.store 放在記憶體裡的 store（key → 值），測試讀它看存了什麼。

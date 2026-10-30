@@ -5,10 +5,10 @@ import { draftPath, wikiModelOf, wikiPath } from '../../wiki/parse'
 import { backButton } from '../stepBar'
 import type { TabBody, TabContext } from './context'
 
-// Wiki 子分頁：.soap/wiki 底下的 Markdown 頁面，照資料夾畫成樹（資料夾一列，點了開合，預設打開），一頁一列：最左邊勾選框，
+// Wiki 子分頁：.mods/wiki 底下的 Markdown 頁面，照資料夾畫成樹（資料夾一列，點了開合，預設打開），一頁一列：最左邊勾選框，
 // 最下面 Send（s）把勾了的送給 Claude、Uncheck all 取消全部勾選；點名稱在分頁裡看內容，最右邊 @ 把路徑插進聊天框、垃圾桶按兩次才刪。
 // 最上面 Summary Conversation（旁邊選問哪個模型：Opus／Sonnet／Haiku；還沒選過是對話目前的那種）請 Claude 把這段對話值得留下的整理成草稿；
-// /soap-mods:wiki 跟 Claude 討論後寫的草稿也在這裡。草稿列在頁面上面，照它寫到的頁面路徑跟頁面一樣畫成樹，右邊 @ 插草稿檔的路徑、
+// /mods:wiki 跟 Claude 討論後寫的草稿也在這裡。草稿列在頁面上面，照它寫到的頁面路徑跟頁面一樣畫成樹，右邊 @ 插草稿檔的路徑、
 // 垃圾桶按兩次丟掉；點開看內容（改既有頁面的看差異，搬移、刪除看那頁現在的內容），
 // Accept 才照草稿改 wiki、Discard 丟掉。
 export const wikiTab: TabBody = ctx => {
@@ -92,7 +92,7 @@ function folderRow({ w, a }: TabContext, row: Extract<TreeRow | DraftTreeRow, { 
   })
 }
 
-// 頁面列、草稿列最右邊：@ 把檔案路徑插進聊天框，垃圾桶按兩次才刪。path 是 .soap/wiki 底下的（草稿是 .drafts/<id>）。
+// 頁面列、草稿列最右邊：@ 把檔案路徑插進聊天框，垃圾桶按兩次才刪。path 是 .mods/wiki 底下的（草稿是 .drafts/<id>）。
 function fileButtons({ w, d, a }: TabContext, path: string) {
   const full = wikiPath(path)
 

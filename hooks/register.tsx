@@ -171,55 +171,55 @@ import { checkWrite } from './write-check'
 // ───── 面板 id（引擎要在這個檔案裡直接看到值，不能 import）─────
 
 // 只有這一個面板：差異和解衝突都畫在它裡面（另開面板的話，焦點轉不過去，快捷鍵按不到）。
-const PANE = 'soap-panel'
+const PANE = 'panel'
 const PANE_ARGS: PaneOpenArgs = { id: PANE, title: PANEL_TITLE }
 
 // ───── 狀態 ─────
 
 // 看著的 Tab、有子分頁的 Tab 各自看的子分頁。舊版存的值（上層的 services、db、spec，子分頁的 spec）讀的時候換成現在的樣子：一律經過 readTabs。
-const tab = atom({ plugin: 'soap-mods', key: 'tab' } as const, 'files')
-const subTabs = atom({ plugin: 'soap-mods', key: 'subTabs' } as const, DEFAULT_SUB_TABS)
+const tab = atom({ plugin: 'mods', key: 'tab' } as const, 'files')
+const subTabs = atom({ plugin: 'mods', key: 'subTabs' } as const, DEFAULT_SUB_TABS)
 // shape：GitView、FilesView 改了樣子就換，熱重載後不沿用舊程式存的、缺欄位的值（同 wiki）。
-const view = atom({ plugin: 'soap-mods', key: 'view' } as const, EMPTY, { shape: 'git-3' })
-const showRemote = atom({ plugin: 'soap-mods', key: 'showRemote' } as const, false)
+const view = atom({ plugin: 'mods', key: 'view' } as const, EMPTY, { shape: 'git-3' })
+const showRemote = atom({ plugin: 'mods', key: 'showRemote' } as const, false)
 // branch 分頁資料夾的開合，key 是「l:路徑」或「r:路徑」；沒有的照預設。
-const branchFolders = atom({ plugin: 'soap-mods', key: 'branchFolders' } as const, {})
+const branchFolders = atom({ plugin: 'mods', key: 'branchFolders' } as const, {})
 // branch 分頁搜尋框裡的字，換分頁就清掉。
-const branchQuery = atom({ plugin: 'soap-mods', key: 'branchQuery' } as const, '')
+const branchQuery = atom({ plugin: 'mods', key: 'branchQuery' } as const, '')
 // log 分頁搜尋框裡的字，一樣換分頁就清掉。
-const logQuery = atom({ plugin: 'soap-mods', key: 'logQuery' } as const, '')
+const logQuery = atom({ plugin: 'mods', key: 'logQuery' } as const, '')
 // diff 分頁看的是第幾頁（從 0 開始）。
-const filePage = atom({ plugin: 'soap-mods', key: 'filePage' } as const, 0)
-const services = atom({ plugin: 'soap-mods', key: 'services' } as const, EMPTY_SERVICES)
-const files = atom({ plugin: 'soap-mods', key: 'files' } as const, EMPTY_FILES, { shape: 'files-3' })
-// Spec 子分頁：.soap/tasks 底下的 feature 清單，和點開的那份 plan.yaml。
-const spec = atom({ plugin: 'soap-mods', key: 'spec' } as const, EMPTY_SPEC)
+const filePage = atom({ plugin: 'mods', key: 'filePage' } as const, 0)
+const services = atom({ plugin: 'mods', key: 'services' } as const, EMPTY_SERVICES)
+const files = atom({ plugin: 'mods', key: 'files' } as const, EMPTY_FILES, { shape: 'files-3' })
+// Spec 子分頁：.mods/tasks 底下的 feature 清單，和點開的那份 plan.yaml。
+const spec = atom({ plugin: 'mods', key: 'spec' } as const, EMPTY_SPEC)
 
 const shownSub = (t: TabId, subs: SubTabs) => (hasSubTabs(t) ? subs[t] : undefined)
-// Wiki 子分頁：.soap/wiki 的頁面、勾了哪幾頁、Distill 的草稿，和打開的那頁或那份草稿。
+// Wiki 子分頁：.mods/wiki 的頁面、勾了哪幾頁、Distill 的草稿，和打開的那頁或那份草稿。
 // shape：WikiView 改了樣子（加欄位、改說明文字）就換；熱重載後整個 Wiki 狀態（勾選以外的畫面狀態、打開的頁面）從頭來，不沿用舊程式留下的值。
-const wiki = atom({ plugin: 'soap-mods', key: 'wiki' } as const, EMPTY_WIKI, { shape: 'wiki-3' })
+const wiki = atom({ plugin: 'mods', key: 'wiki' } as const, EMPTY_WIKI, { shape: 'wiki-3' })
 // 這段對話已經帶給 Claude 的頁面：每頁一段對話只送一次。
-const wikiSent = atom({ plugin: 'soap-mods', key: 'wikiSent' } as const, NO_WIKI_SENT)
+const wikiSent = atom({ plugin: 'mods', key: 'wikiSent' } as const, NO_WIKI_SENT)
 // Wiki 子分頁資料夾的開合，key 是資料夾路徑（含結尾的 /）；沒有的是打開。
-const wikiFolders = atom({ plugin: 'soap-mods', key: 'wikiFolders' } as const, {})
-const log = atom({ plugin: 'soap-mods', key: 'log' } as const, EMPTY_LOG)
+const wikiFolders = atom({ plugin: 'mods', key: 'wikiFolders' } as const, {})
+const log = atom({ plugin: 'mods', key: 'log' } as const, EMPTY_LOG)
 // DB 分頁：存著的連線（不含密碼）、打開的那個的資料表、查詢和結果。
-const db = atom({ plugin: 'soap-mods', key: 'db' } as const, EMPTY_DB)
-// HTTP 子分頁：.soap/http 的請求、清單的搜尋字、選的環境、點開的請求和它的回應。shape 同 wiki。
-const http = atom({ plugin: 'soap-mods', key: 'http' } as const, EMPTY_HTTP, { shape: 'http-14' })
+const db = atom({ plugin: 'mods', key: 'db' } as const, EMPTY_DB)
+// HTTP 子分頁：.mods/http 的請求、清單的搜尋字、選的環境、點開的請求和它的回應。shape 同 wiki。
+const http = atom({ plugin: 'mods', key: 'http' } as const, EMPTY_HTTP, { shape: 'http-14' })
 // CI 分頁（GitLab）：分支清單、點開的分支的 pipeline、點開的 pipeline 的 job、點開的 job 的 log。shape 同 wiki。
-const ci = atom({ plugin: 'soap-mods', key: 'ci' } as const, EMPTY_CI, { shape: 'ci-6' })
+const ci = atom({ plugin: 'mods', key: 'ci' } as const, EMPTY_CI, { shape: 'ci-6' })
 // MR 分頁（GitLab）：開著的 MR、點開的那個的狀態和建議。shape 同 wiki。
-const mr = atom({ plugin: 'soap-mods', key: 'mr' } as const, EMPTY_MR, { shape: 'mr-3' })
+const mr = atom({ plugin: 'mods', key: 'mr' } as const, EMPTY_MR, { shape: 'mr-3' })
 // 蓋住分頁的畫面：差異、三欄合併或檔案內容，一次一個（cover.ts）。
-const cover = atom({ plugin: 'soap-mods', key: 'cover' } as const, NO_COVER, { shape: 'cover-3' })
+const cover = atom({ plugin: 'mods', key: 'cover' } as const, NO_COVER, { shape: 'cover-3' })
 // 長的差異看到第幾頁，照地方（diffpage、wikidiff）記；換一份差異（id 不同）就從頭。
-const diffPages = atom({ plugin: 'soap-mods', key: 'diffPages' } as const, {})
+const diffPages = atom({ plugin: 'mods', key: 'diffPages' } as const, {})
 // session 的資料夾：開始時記下來，之後每個分頁、每個沒給 cwd 的程序都用它。$.session.root() 會跟著 worktree、/cd 換地方
-// （Claude 自己 EnterWorktree、worktree 裡的 subagent），面板不跟著跑：.soap/http、wiki、Git 都留在原本的資料夾。
+// （Claude 自己 EnterWorktree、worktree 裡的 subagent），面板不跟著跑：.mods/http、wiki、Git 都留在原本的資料夾。
 // atom 撐過熱重載，模組變數撐過 /clear（狀態回到初始值，卻不發 session.start）。
-const home = atom({ plugin: 'soap-mods', key: 'home' } as const, '')
+const home = atom({ plugin: 'mods', key: 'home' } as const, '')
 let homeDir = ''
 
 async function readTabs($: EngineInterface) {
@@ -304,14 +304,14 @@ async function setMr($: EngineInterface, change: Partial<MrView>) {
 // 等 session.attach 再開。
 let isOpenPending = false
 
-// 把 Soap Panel 的焦點圈移到 key 那個按鈕上；Soap Panel 沒拿著鍵盤就算了（回 false）。
+// 把 Panel 的焦點圈移到 key 那個按鈕上；Panel 沒拿著鍵盤就算了（回 false）。
 async function ringOn($: EngineInterface, key: string) {
   const r = await $.ui.focus({ requestId: PANE, key }).catch(() => undefined)
 
   return r !== undefined && !('deny' in r)
 }
 
-// 蓋上或換掉差異、合併時，捲回 Soap Panel 最上面從頭看。
+// 蓋上或換掉差異、合併時，捲回 Panel 最上面從頭看。
 async function scrollTop($: EngineInterface) {
   await $.ui.scroll({ in: PANE, to: 'start' }).catch(() => undefined)
 }
@@ -398,7 +398,7 @@ function gitIo($: EngineInterface): GitIo {
   return io
 }
 
-// 回合結束、每 GIT_REFRESH_MS、Soap Panel 被切到前面時呼叫；Soap Panel 不在前面就不讀。
+// 回合結束、每 GIT_REFRESH_MS、Panel 被切到前面時呼叫；Panel 不在前面就不讀。
 async function refreshWhenShown($: EngineInterface) {
   const { tab: t, subTabs: subs } = await readTabs($)
   const sub = shownSub(t, subs)
@@ -785,15 +785,15 @@ export const register: Register = on => {
     return next(e)
   })
 
-  // /soap-mods:open 是 skills/open 這個檔案寫的指令（desktop app 還沒開始對話就列得出來），
+  // /mods:open 是 skills/open 這個檔案寫的指令（desktop app 還沒開始對話就列得出來），
   // 這裡接下來直接開面板，不交給 Claude。引擎可能不帶外掛名稱前綴，兩個名字都接。
-  for (const command of ['soap-mods:open', 'open']) {
+  for (const command of ['mods:open', 'open']) {
     on('command.run', { command }, async $ => {
       const t = await readTabs($)
       loadTab($, t.tab, t.subTabs)
       await $.ui.open(PANE_ARGS)
 
-      return { text: 'Soap Panel opened.' }
+      return { text: 'Panel opened.' }
     })
   }
 

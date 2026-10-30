@@ -1,16 +1,16 @@
-// Soap Panel 的焦點：按了按鈕後焦點不要丟、按的那顆不見了把焦點圈移到看得到的按鈕上。
+// Panel 的焦點：按了按鈕後焦點不要丟、按的那顆不見了把焦點圈移到看得到的按鈕上。
 // 不碰 $ 和 atom，用 register.tsx 給的 FocusIo。
 //
 // 焦點有三種會丟：
-// 1. 引擎知道的：點分頁標籤切到 Soap Panel 時引擎不會通知、也不給焦點；按完按鈕有時也會丟（引擎回報沒焦點）。
+// 1. 引擎知道的：點分頁標籤切到 Panel 時引擎不會通知、也不給焦點；按完按鈕有時也會丟（引擎回報沒焦點）。
 //    定時看一下（focusWhenShown）：它「剛被切到前面」或「剛按完按鈕」又沒焦點，就把焦點給它。
 //    只在那兩種時候給，平常在輸入框打字不會被搶。
 // 2. 引擎不知道的：按的按鈕重畫後不見了（整塊換成差異、合併，那列消失），桌面版的焦點會掉到輸入框，
-//    引擎卻還以為 Soap Panel 拿著鍵盤，給焦點也補不回來，快捷鍵就跑去輸入框。
+//    引擎卻還以為 Panel 拿著鍵盤，給焦點也補不回來，快捷鍵就跑去輸入框。
 //    要把焦點圈移到看得到的按鈕上才行：每次畫完檢查剛按的那顆還在不在（checkPressed）。
 // 3. 按了這個畫面沒綁的字母（log 分頁按 m）：桌面版把那個鍵交給輸入框，焦點跟著跑過去。
 //    這種在畫面那層擋掉（ui/panel.tsx 的 strayKeys）。
-// 4. 終端機點輸入框（底下那顆透明按鈕）時 Soap Panel 沒拿著鍵盤：引擎不肯移焦點圈（focusInput）。
+// 4. 終端機點輸入框（底下那顆透明按鈕）時 Panel 沒拿著鍵盤：引擎不肯移焦點圈（focusInput）。
 
 import type { RenderChildren, Timer, UiPane, UiPressArgument } from 'claude-code'
 
@@ -20,15 +20,15 @@ import { buttonKeys, neighbourKey, ringAnchor, tabIconKey } from './keys'
 
 export type FocusIo = {
   findPane: () => Promise<UiPane | undefined>
-  // 把焦點給 Soap Panel。
+  // 把焦點給 Panel。
   focusPanel: () => Promise<unknown>
-  // 把 Soap Panel 的焦點圈移到 key 那個按鈕上；Soap Panel 沒拿著鍵盤就算了（回 false）。
+  // 把 Panel 的焦點圈移到 key 那個按鈕上；Panel 沒拿著鍵盤就算了（回 false）。
   ringOn: (key: string) => Promise<boolean>
   now: () => Promise<number>
   after: (ms: number, fn: () => unknown) => Timer
   // 看著的 Tab 和它的子分頁。
   shownTab: () => Promise<{ t: string; sub: string | undefined }>
-  // Soap Panel 剛被切到前面時重讀（register.tsx 的 refreshWhenShown）。
+  // Panel 剛被切到前面時重讀（register.tsx 的 refreshWhenShown）。
   refreshWhenShown: () => Promise<void>
 }
 
@@ -85,7 +85,7 @@ export function checkPressed(io: FocusIo, tree: RenderChildren, now: number, t: 
 
 // 按的那顆跟著那列要被刪掉了（diff 分頁的檔案、分支、Spec、Wiki、DB 連線、Files 選單）：刪之前先把焦點圈移到下一列同一種按鈕（沒有就上一列、再沒有就分頁圖示）。
 // rowKey：用那列的這顆找鄰居（Files 是在選單裡按 Delete，鄰居是下一列的 ⋯）；沒給就用按的那顆。
-// 等它不見才移就晚了：桌面版的焦點已經掉出 Soap Panel，下一次點只會拿回焦點、按不到東西。
+// 等它不見才移就晚了：桌面版的焦點已經掉出 Panel，下一次點只會拿回焦點、按不到東西。
 export async function leaveRow(io: FocusIo, rowKey?: string) {
   const p = pressed
   const key = p?.key

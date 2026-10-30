@@ -59,8 +59,8 @@ function dbWorld(
     const secret = keychain.run(e)
     if (secret !== undefined) return secret
     const [cmd] = e.argv
-    if (cmd === 'powershell' && e.init?.env?.SOAP_SECRET !== undefined) return ok(`${DPAPI_BLOB}\r\n`)
-    if (cmd === 'powershell' && e.init?.env?.SOAP_BLOB === DPAPI_BLOB) return ok(toHex(PASSWORD))
+    if (cmd === 'powershell' && e.init?.env?.MODS_SECRET !== undefined) return ok(`${DPAPI_BLOB}\r\n`)
+    if (cmd === 'powershell' && e.init?.env?.MODS_BLOB === DPAPI_BLOB) return ok(toHex(PASSWORD))
     if (cmd === 'sqlcmd') {
       // 引擎跑不起來的程序：$.process.run 被拒，訊息有 ENOENT。
       if (!hasSqlcmd) return { deny: 'spawn sqlcmd ENOENT' }
@@ -209,7 +209,7 @@ test('opening a connection lists its tables; a SELECT runs with the password in 
   await ui.unmount()
 })
 
-test('Open writes the rows to a new .csv under .soap/tmp, quoting commas and quotes, and opens it in the default app', async ($, on) => {
+test('Open writes the rows to a new .csv under .mods/tmp, quoting commas and quotes, and opens it in the default app', async ($, on) => {
   const world = dbWorld(on, { rowsOut: 'id\tcustomer\n--\t--------\n1\tAda, "Co"\n2\t李\n' })
   const { tmp } = world
   const ui = await mountPane($, 'desktop')
@@ -218,7 +218,7 @@ test('Open writes the rows to a new .csv under .soap/tmp, quoting commas and quo
   await ui.input({ key: 'db:query', text: 'SELECT id, customer FROM dbo.orders' })
   await ui.press({ key: 'db:result:open' })
   const csv = Object.keys(tmp.written).find(p => p.endsWith('.csv')) ?? ''
-  expect(csv).toMatch(/^\/proj\/\.soap\/tmp\/rows-\d{8}-\d{6}-\d{3}\.csv$/)
+  expect(csv).toMatch(/^\/proj\/\.mods\/tmp\/rows-\d{8}-\d{6}-\d{3}\.csv$/)
   // 開頭的 BOM 讓 Excel 照 UTF-8 讀。
   expect(tmp.written[csv]).toBe('\uFEFFid,customer\r\n1,"Ada, ""Co""' + '"\r\n2,李\r\n')
   expect(tmp.opens).toEqual([['open', csv]])
@@ -355,8 +355,8 @@ test('on Windows the password is kept as DPAPI ciphertext in the store and decry
   expect(JSON.stringify(world.store)).not.toContain(PASSWORD)
   expect(world.runs.some(r => r.argv[0] === 'security')).toBe(false)
   // 要加密的密碼從環境變數進 PowerShell，命令列上沒有。
-  const protect = world.runs.find(r => r.init?.env?.SOAP_SECRET !== undefined)
-  expect(protect?.init?.env?.SOAP_SECRET).toBe(toHex(PASSWORD))
+  const protect = world.runs.find(r => r.init?.env?.MODS_SECRET !== undefined)
+  expect(protect?.init?.env?.MODS_SECRET).toBe(toHex(PASSWORD))
   expect(protect?.argv.some(a => a.includes(PASSWORD))).toBe(false)
 
   await ui.press({ key: `db:item:${id}` })

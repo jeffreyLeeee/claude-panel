@@ -1,4 +1,4 @@
-// 解衝突（三欄合併，畫在 Soap Panel 裡）：讀 git 留著的三個版本、跳到下一段衝突、Apply、用某一邊、交給 Claude。
+// 解衝突（三欄合併，畫在 Panel 裡）：讀 git 留著的三個版本、跳到下一段衝突、Apply、用某一邊、交給 Claude。
 
 import type { GitFile, MergeChunk, MergeView } from '../../types'
 import { coverData, patchCover, showCover } from '../cover'

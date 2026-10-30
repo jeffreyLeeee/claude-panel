@@ -1,4 +1,4 @@
-// Spec 分頁（.soap/tasks/<feature>/plan.yaml）的動作：列 feature、看計劃、Do、刪除，和檢查 Claude 寫的 plan.yaml。
+// Spec 分頁（.mods/tasks/<feature>/plan.yaml）的動作：列 feature、看計劃、Do、刪除，和檢查 Claude 寫的 plan.yaml。
 // 不碰 $ 和 atom，用 register.tsx 給的 SpecIo（見 io.ts）。
 
 import type { SpecEntry, SpecView } from '../../types'
@@ -21,8 +21,8 @@ export type SpecIo = Io & {
 const specLoads = latestOnly()
 const planReads = latestOnly()
 
-// 列出 .soap/tasks 底下的 feature 資料夾，每個看它的 plan.yaml 改過的時間（最新的排上面）。
-// 還沒有 .soap/tasks 是還沒寫過計劃，不是錯誤：列不出來時才看它在不在。
+// 列出 .mods/tasks 底下的 feature 資料夾，每個看它的 plan.yaml 改過的時間（最新的排上面）。
+// 還沒有 .mods/tasks 是還沒寫過計劃，不是錯誤：列不出來時才看它在不在。
 async function loadSpecs(io: SpecIo) {
   const isStale = specLoads.start()
   const root = await io.root()
@@ -92,7 +92,7 @@ export async function doSpec(io: SpecIo) {
   io.toast('Sent to Claude')
 }
 
-// 刪 Spec 要按兩次：垃圾桶按了換成打勾，DELETE_ARM_MS 內再按才刪掉整個 .soap/tasks/<feature>/；按別的垃圾桶，原本的就收回。
+// 刪 Spec 要按兩次：垃圾桶按了換成打勾，DELETE_ARM_MS 內再按才刪掉整個 .mods/tasks/<feature>/；按別的垃圾桶，原本的就收回。
 // 名稱是 fs.list 列出來的資料夾名稱，含斜線的不刪（不是一個 feature 資料夾）；空的、. 和 .. 由 removePath 擋。
 export async function deleteSpec(io: SpecIo, name: string) {
   if (!isConfirmed(io, `spec:delete:${name}`)) return io.setSpec({ deleteError: '' })
@@ -110,7 +110,7 @@ export async function deleteSpec(io: SpecIo, name: string) {
   await loadSpecs(io)
 }
 
-// Claude 用 Write／Edit 寫了 .soap/tasks/<feature>/plan.yaml：寫完讀回整份檢查格式，
+// Claude 用 Write／Edit 寫了 .mods/tasks/<feature>/plan.yaml：寫完讀回整份檢查格式，
 // 不對就把哪裡不對塞進工具結果後面（只有 Claude 看得到，它會自己修），也跳個 toast 讓人知道。
 // Edit 只帶改的那一段，所以不在寫之前擋，寫完看整份。
 export async function checkPlanWrite(io: Io, path: string) {

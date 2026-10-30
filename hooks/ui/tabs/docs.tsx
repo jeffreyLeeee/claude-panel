@@ -6,7 +6,7 @@ import type { Widgets } from '../widgets'
 import type { TabBody, TabContext } from './context'
 import { wikiTab } from './wiki'
 
-// Docs 分頁有兩個子分頁：Spec 和 Wiki（ui/tabs/wiki.tsx）。Spec 子分頁是 plan skill 在 .soap/tasks/<feature>/plan.yaml 寫的計劃，一個 feature 一列，最新改的在上面。
+// Docs 分頁有兩個子分頁：Spec 和 Wiki（ui/tabs/wiki.tsx）。Spec 子分頁是 plan skill 在 .mods/tasks/<feature>/plan.yaml 寫的計劃，一個 feature 一列，最新改的在上面。
 // 每列最右邊一個垃圾桶：按了換成紅底打勾，幾秒內再按才刪掉整個 feature 資料夾；刪不掉的原因寫在清單上面。
 // 點了在分頁裡看它的 Description／Goals／Related／Verify，最上面 ← Back（b）回清單，最底下正中間 Do（d）叫 Claude 照它做。
 // plan.yaml 格式不對時先列出哪裡不對（紅字），讀得到的部分照樣畫。
@@ -22,7 +22,7 @@ function specList({ w, d, a }: TabContext) {
   const s = d.spec
   if (!s.isLoaded) return <Text dimColor>Loading…</Text>
   if (s.error !== '') return <Text color="error">{s.error}</Text>
-  if (s.specs.length === 0) return <Text dimColor>No specs yet. Run /soap-mods:plan to write one.</Text>
+  if (s.specs.length === 0) return <Text dimColor>No specs yet. Run /mods:plan to write one.</Text>
 
   return (
     <Box flexDirection="column" gap={1}>

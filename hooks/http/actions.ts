@@ -84,7 +84,7 @@ async function readEnvs(io: HttpIo, dir: string) {
   }
 }
 
-// 還沒有資料夾不是錯誤，就是還沒有請求。.soap/http 底下的 .http，加上它底下一層資料夾裡的（. 開頭的資料夾不算）。
+// 還沒有資料夾不是錯誤，就是還沒有請求。.mods/http 底下的 .http，加上它底下一層資料夾裡的（. 開頭的資料夾不算）。
 async function readRequests(io: HttpIo, dir: string): Promise<{ requests: HttpRequest[]; error: string }> {
   if (!(await io.exists(dir).catch(() => false))) return { requests: [], error: '' }
   try {
@@ -196,7 +196,7 @@ export async function foldHttpFolder(io: HttpIo, folder: string, isFolded: boole
   await io.setHttp({ foldedFolders: toggled(v.foldedFolders, folder, isFolded) })
 }
 
-/** Opens .soap/http in Finder or Explorer, making it first when there is none yet. */
+/** Opens .mods/http in Finder or Explorer, making it first when there is none yet. */
 export async function openHttpDir(io: HttpIo) {
   try {
     await openDir(io, `${await io.root()}/${HTTP_DIR}`)
@@ -216,7 +216,7 @@ const titled = (text: string) => (text.startsWith('###') ? text : `###\n${text}`
 // 檔名、資料夾名：哪種語言的字、數字都可以（登入、ログイン），加上空白、- _ .；斜線、冒號那些路徑和 Windows 不收的字不行。
 const NAME_CHARS = /^[\p{L}\p{M}\p{N}_. -]+$/u
 
-// 只能是 .soap/http 底下的一個檔，沒寫 .http 就補上。
+// 只能是 .mods/http 底下的一個檔，沒寫 .http 就補上。
 function httpFileName(name: string) {
   if (name.trim() === '') throw new Error('Write a name, like login.')
   const file = /\.http$/i.test(name.trim()) ? name.trim() : `${name.trim()}.http`
@@ -288,7 +288,7 @@ async function saveEditedRequest(io: HttpIo, v: HttpView, d: { id: string; file:
   return file
 }
 
-/** Writes the draft's text to `.soap/http`: a request's block in place (keeping the file's line ends), or a new request in a file of its own. */
+/** Writes the draft's text to `.mods/http`: a request's block in place (keeping the file's line ends), or a new request in a file of its own. */
 export async function saveHttpDraft(io: HttpIo) {
   const v = await io.getHttp()
   const d = v.draft

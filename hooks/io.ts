@@ -23,7 +23,7 @@ export type Io = {
   // 模組變數（正在跑的狀態）改了，叫面板重畫。
   invalidate: () => void
   submit: EngineInterface['prompt']['submit']
-  // Soap Panel：捲回最上面、把焦點圈移到某顆按鈕、按的那列要被刪掉時先把焦點圈移到鄰居（見 register.tsx 的 leaveRow）。
+  // Panel：捲回最上面、把焦點圈移到某顆按鈕、按的那列要被刪掉時先把焦點圈移到鄰居（見 register.tsx 的 leaveRow）。
   scrollTop: () => Promise<void>
   scrollTo: (key: string) => Promise<void>
   ringOn: (key: string) => Promise<boolean>

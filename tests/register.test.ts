@@ -125,7 +125,7 @@ test('pressing a changed file shows its diff over the tabs, Next/Previous step t
   // 改名的檔案只列新名字。
   expect(await ui.find({ key: 'file:staged:new.ts' })).toBeDefined()
   expect(await ui.find({ key: 'file:staged:old.ts' })).toBeUndefined()
-  // 沒點之前不顯示差異；點了在 Soap Panel 裡蓋掉分頁看，Back 回來。
+  // 沒點之前不顯示差異；點了在 Panel 裡蓋掉分頁看，Back 回來。
   expect(await ui.find({ key: 'diff' })).toBeUndefined()
   await ui.press({ key: 'file:unstaged:a.ts' })
   expect(await ui.find({ key: 'diff' })).toBeDefined()
@@ -604,9 +604,9 @@ test('long file and branch lists draw the first 50, with pages of 50 for files a
 test('branches with / in their name group into folders that open and close', async ($, on) => {
   stubPanel(on)
   gitRepo(on, {
-    status: '## soap/feature/login\0',
+    status: '## dev/feature/login\0',
     branches: [
-      branchLine('soap/feature/login', { isCurrent: true }),
+      branchLine('dev/feature/login', { isCurrent: true }),
       branchLine('feature/a'),
       branchLine('feature/b'),
       branchLine('main'),
@@ -619,7 +619,7 @@ test('branches with / in their name group into folders that open and close', asy
   const ui = await mountPane($)
   await ui.press({ key: 'sub:branch' })
   // 目前分支固定在最上面寫全名；其他分支收在資料夾裡，預設收起。
-  expect(await ui.find({ key: 'switch:l:soap/feature/login' })).toBeDefined()
+  expect(await ui.find({ key: 'switch:l:dev/feature/login' })).toBeDefined()
   expect(await ui.find({ key: 'switch:l:main' })).toBeDefined()
   expect(await ui.find({ key: 'switch:l:feature/a' })).toBeUndefined()
   await ui.press({ key: 'folder:l:feature/' })
@@ -638,7 +638,7 @@ test('branches with / in their name group into folders that open and close', asy
   await ui.input({ key: 'branch:search', text: 'feature b', kind: 'change' })
   expect(await ui.find({ key: 'switch:l:feature/b' })).toBeDefined()
   expect(await ui.find({ key: 'switch:l:feature/a' })).toBeUndefined()
-  expect(await ui.find({ key: 'switch:l:soap/feature/login' })).toBeUndefined()
+  expect(await ui.find({ key: 'switch:l:dev/feature/login' })).toBeUndefined()
   await ui.unmount()
 })
 
@@ -767,7 +767,7 @@ test('pressing a commit lists its files, a file shows its diff in that commit, a
 
   const ui = await mountPane($)
   await ui.press({ key: 'sub:log' })
-  // 點 commit：列表換成它改了哪些檔案；點檔案在 Soap Panel 裡看它在這個 commit 的差異。
+  // 點 commit：列表換成它改了哪些檔案；點檔案在 Panel 裡看它在這個 commit 的差異。
   await ui.press({ key: `commit:${sha(0)}` })
   expect(await ui.find({ type: 'Text', text: 'Files · 2' })).toBeDefined()
   expect(await ui.find({ key: `commit:${sha(1)}` })).toBeUndefined()
@@ -1048,12 +1048,12 @@ test('the ⋯ of a Files row opens a menu: Show in Explorer selects it in Explor
   on('fs.list', (_$, e) => ({ value: posix(e.path) === '/proj' ? entries : [] }))
   on('process.run', (_$, e) => {
     // Show in Explorer 給反斜線路徑、Delete 給原本的 / 路徑，都經過 PowerShell。
-    const path = e.init?.env?.SOAP_PATH
+    const path = e.init?.env?.MODS_PATH
     if (path === undefined) return ok('')
     runs.push({ argv: [...e.argv], path })
     if (path.includes('\\')) return ok('')
     if (isFailing) return fail('Access denied', 1)
-    entries.splice(entries.findIndex(x => `/proj/${x.name}` === e.init?.env?.SOAP_PATH), 1)
+    entries.splice(entries.findIndex(x => `/proj/${x.name}` === e.init?.env?.MODS_PATH), 1)
 
     return ok('')
   })
@@ -1193,8 +1193,8 @@ test('the Services tab lists the running services and stops one by killing its t
   on('env.get', (_$, e) => ({ value: e.name === 'OS' ? 'Windows_NT' : undefined }))
   on('process.run', (_$, e) => {
     calls.push([...e.argv])
-    if (e.init?.env?.SOAP_PID !== undefined) {
-      kills.push(e.init.env.SOAP_PID)
+    if (e.init?.env?.MODS_PID !== undefined) {
+      kills.push(e.init.env.MODS_PID)
 
       return ok('')
     }
@@ -1239,12 +1239,12 @@ test('restart kills the tree, then relaunches the same command in the same folde
   on('ui.toast', () => ({ value: undefined }))
   on('env.get', (_$, e) => ({ value: e.name === 'OS' ? 'Windows_NT' : undefined }))
   on('process.run', (_$, e) => {
-    if (e.init?.env?.SOAP_PID !== undefined) {
-      kills.push(e.init.env.SOAP_PID)
+    if (e.init?.env?.MODS_PID !== undefined) {
+      kills.push(e.init.env.MODS_PID)
 
       return ok('')
     }
-    if (e.argv[0] === 'powershell' && e.init?.env?.SOAP_CMD !== undefined) {
+    if (e.argv[0] === 'powershell' && e.init?.env?.MODS_CMD !== undefined) {
       launches.push(e.init.env)
 
       return ok('4321\r\n')
@@ -1260,8 +1260,8 @@ test('restart kills the tree, then relaunches the same command in the same folde
   await ui.press({ key: 'svc:restart:11' })
   expect(kills).toEqual(['11'])
   expect(launches).toHaveLength(1)
-  expect(launches[0]?.SOAP_DIR).toBe('C:\\proj\\web')
-  expect(launches[0]?.SOAP_CMD).toContain('npm-cli.js" run dev')
+  expect(launches[0]?.MODS_DIR).toBe('C:\\proj\\web')
+  expect(launches[0]?.MODS_CMD).toContain('npm-cli.js" run dev')
   expect(await ui.find({ type: 'Text', text: /Restart failed/ })).toBeUndefined()
   await ui.unmount()
 })
@@ -1274,7 +1274,7 @@ test('a restart that dies right away says so, and the next scan does not wipe th
   on('ui.toast', () => ({ value: undefined }))
   on('env.get', (_$, e) => ({ value: e.name === 'OS' ? 'Windows_NT' : undefined }))
   on('process.run', (_$, e) => {
-    if (e.argv[0] === 'powershell' && e.init?.env?.SOAP_CMD !== undefined) return ok('4321\r\n')
+    if (e.argv[0] === 'powershell' && e.init?.env?.MODS_CMD !== undefined) return ok('4321\r\n')
     // 重開的程序 4321 不在活著的 PID 裡：一開就掛了。
     if (e.argv[0] === 'powershell') return ok(JSON.stringify(SCAN))
 
@@ -1313,12 +1313,12 @@ function winServices(on: TestOn, scan: ScanResult, root = ROOT) {
   on('ui.toast', () => ({ value: undefined }))
   on('env.get', (_$, e) => ({ value: e.name === 'OS' ? 'Windows_NT' : undefined }))
   on('process.run', (_$, e) => {
-    if (e.init?.env?.SOAP_PID !== undefined) {
-      kills.push(e.init.env.SOAP_PID)
+    if (e.init?.env?.MODS_PID !== undefined) {
+      kills.push(e.init.env.MODS_PID)
 
       return ok('')
     }
-    if (e.argv[0] === 'powershell' && e.init?.env?.SOAP_CMD !== undefined) {
+    if (e.argv[0] === 'powershell' && e.init?.env?.MODS_CMD !== undefined) {
       launches.push(e.init.env)
 
       return ok('4321\r\n')
@@ -1341,7 +1341,7 @@ test('the Services tab matches the session folder in any case, and restarts go -
   await openTool(ui, 'services')
   expect(await serviceRows(ui)).toEqual(['go · go-server · :8081', 'node · proj · :4000', 'dotnet · Api · :5000 :5001', 'cargo · app · :7000', 'npm · web · :5173'])
   await ui.press({ key: 'svc:restart:70' })
-  expect(launches[0]?.SOAP_DIR).toBe('C:\\proj')
+  expect(launches[0]?.MODS_DIR).toBe('C:\\proj')
   await ui.unmount()
 })
 
@@ -1368,7 +1368,7 @@ test('a service wrapped in cmd /c shows the real tool, and restart reruns the wr
   // 砍最上層的 cmd（整棵）；重跑照原樣跑 cmd，set 環境變數那段才不會掉。
   await ui.press({ key: 'svc:restart:8' })
   expect(kills).toEqual(['8'])
-  expect(launches[0]).toMatchObject({ SOAP_CMD: WRAPPER, SOAP_DIR: 'C:\\proj' })
+  expect(launches[0]).toMatchObject({ MODS_CMD: WRAPPER, MODS_DIR: 'C:\\proj' })
   await ui.unmount()
 })
 
@@ -1435,7 +1435,7 @@ function macServices(on: TestOn, argsOut = MAC_ARGS_OUT) {
     if (e.argv[0] === 'kill') kills.push([...e.argv])
     if (e.argv[0] === 'ps') return ok(e.argv.includes('pid=,args=') ? argsOut : MAC_PPIDS_OUT)
     if (e.argv[0] === 'lsof') return ok(MAC_FILES_OUT)
-    if (e.argv[0] === '/bin/sh' && e.init?.env?.SOAP_CMD !== undefined) {
+    if (e.argv[0] === '/bin/sh' && e.init?.env?.MODS_CMD !== undefined) {
       launches.push(e.init.env)
 
       return ok('4321\n')
@@ -1462,7 +1462,7 @@ test('on macOS the Services tab scans with ps and lsof, stops with kill -9 on th
   await ui.press({ key: 'svc:stop:11' })
   expect(kills).toEqual([['kill', '-9', '11', '12', '13', '99']])
   await ui.press({ key: 'svc:restart:11' })
-  expect(launches).toEqual([{ SOAP_CMD: 'npm run dev', SOAP_DIR: `${MAC_ROOT}/web` }])
+  expect(launches).toEqual([{ MODS_CMD: 'npm run dev', MODS_DIR: `${MAC_ROOT}/web` }])
   await ui.unmount()
 })
 
@@ -1489,7 +1489,7 @@ test('on macOS a service whose command has only letters, paths and flags restart
   const ui = await mountPane($)
   await openTool(ui, 'services')
   await ui.press({ key: 'svc:restart:11' })
-  expect(launches).toEqual([{ SOAP_CMD: cmd, SOAP_DIR: `${MAC_ROOT}/web` }])
+  expect(launches).toEqual([{ MODS_CMD: cmd, MODS_DIR: `${MAC_ROOT}/web` }])
   await ui.unmount()
 })
 
@@ -1615,7 +1615,7 @@ test('the conflict tab lists conflicted files, and the merge view resolves one, 
   // 還有衝突時不能 continue。
   expect(await ui.find({ key: 'op:continue' })).toBeUndefined()
   await ui.press({ key: 'conflict:src/a.ts' })
-  // 三欄畫在 Soap Panel 裡，蓋掉分頁；還有衝突時沒有 Apply。
+  // 三欄畫在 Panel 裡，蓋掉分頁；還有衝突時沒有 Apply。
   expect(await ui.find({ key: 'sub:conflict' })).toBeUndefined()
   expect(await ui.find({ type: 'Text', text: '0 of 1 conflicts resolved' })).toBeDefined()
   expect(await ui.find({ key: 'merge:apply' })).toBeUndefined()
@@ -2006,7 +2006,7 @@ test('at turn end the Files tab relists its folder, and an open file shows its n
 
 // ───── 焦點 ─────
 
-test('with no screen attached at start, Soap Panel waits for session.attach to open', async ($, on) => {
+test('with no screen attached at start, Panel waits for session.attach to open', async ($, on) => {
   mock.clock(on)
   const opened: string[] = []
   on('ui.open', (_$, e) => {
@@ -2023,14 +2023,14 @@ test('with no screen attached at start, Soap Panel waits for session.attach to o
   expect(opened).toEqual([])
 
   await $.session.attach({ surface: 'desktop', clientId: 'desktop:default' })
-  expect(opened).toEqual(['soap-panel'])
+  expect(opened).toEqual(['panel'])
 
   // 再接上一個不重開（人可能已經關掉了）。
   await $.session.attach({ surface: 'desktop', clientId: 'desktop:2' })
-  expect(opened).toEqual(['soap-panel'])
+  expect(opened).toEqual(['panel'])
 })
 
-test('session start deletes the files in .soap/tmp older than a day, keeping newer ones and its .gitignore', async ($, on) => {
+test('session start deletes the files in .mods/tmp older than a day, keeping newer ones and its .gitignore', async ($, on) => {
   const now = Date.parse('2026-10-29T10:00:00Z')
   const removed: string[] = []
   const old = (name: string, ago: number) => ({ ...fsEntry(name), mtimeMs: now - ago })
@@ -2041,7 +2041,7 @@ test('session start deletes the files in .soap/tmp older than a day, keeping new
   on('session.start', (_$, e) => ({ cwd: e.cwd }))
   on('fs.list', (_$, e) => ({
     value:
-      posix(e.path) === '/repo/.soap/tmp'
+      posix(e.path) === '/repo/.mods/tmp'
         ? [old('.gitignore', 3 * TMP_MAX_AGE_MS), old('response-old.json', TMP_MAX_AGE_MS + 1), old('rows-today.csv', 3_600_000)]
         : [],
   }))
@@ -2055,12 +2055,12 @@ test('session start deletes the files in .soap/tmp older than a day, keeping new
     },
   })
   await $.session.start({ cwd: '/repo', surface: 'desktop', isInteractive: true })
-  expect(await waitFor(async () => (removed.length > 0 ? removed : undefined), 200)).toEqual(['/repo/.soap/tmp/response-old.json'])
+  expect(await waitFor(async () => (removed.length > 0 ? removed : undefined), 200)).toEqual(['/repo/.mods/tmp/response-old.json'])
 })
 
-test('Soap Panel brought to the front, or just pressed, gets the keyboard back', async ($, on) => {
+test('Panel brought to the front, or just pressed, gets the keyboard back', async ($, on) => {
   const clock = mock.clock(on)
-  const pane = (isShown: boolean, isFocused: boolean) => [{ id: 'soap-panel', title: 'Soap Panel', isShown, isFocused, isPlaced: true }]
+  const pane = (isShown: boolean, isFocused: boolean) => [{ id: 'panel', title: 'Panel', isShown, isFocused, isPlaced: true }]
   let panes = pane(true, false)
   const focused: string[] = []
   on('ui.panes', () => ({ value: panes }))
@@ -2077,7 +2077,7 @@ test('Soap Panel brought to the front, or just pressed, gets the keyboard back',
   gitRepo(on, { status: '## main\0' })
   await $.session.start({ cwd: '/repo', surface: 'desktop', isInteractive: true })
 
-  // 剛啟動時 Soap Panel 在前面但沒焦點：不搶（人可能正在輸入框打字）。
+  // 剛啟動時 Panel 在前面但沒焦點：不搶（人可能正在輸入框打字）。
   await clock.advance(200)
   expect(focused).toEqual([])
 
@@ -2086,7 +2086,7 @@ test('Soap Panel brought to the front, or just pressed, gets the keyboard back',
   await clock.advance(200)
   panes = pane(true, false)
   await clock.advance(200)
-  expect(focused).toEqual(['soap-panel'])
+  expect(focused).toEqual(['panel'])
   focused.length = 0
 
   // 按完按鈕丟了焦點：剛按完的一小段時間內補回來。
@@ -2095,7 +2095,7 @@ test('Soap Panel brought to the front, or just pressed, gets the keyboard back',
   await ui.press({ key: 'sub:diff' })
   panes = pane(true, false)
   await clock.advance(200)
-  expect(focused).toEqual(['soap-panel'])
+  expect(focused).toEqual(['panel'])
   focused.length = 0
 
   // 過了那段時間才丟焦點（人自己點去輸入框）：不搶回來。

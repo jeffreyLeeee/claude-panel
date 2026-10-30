@@ -2,7 +2,7 @@ import { expect, mock, test } from 'claude-code/testing'
 
 import { type Pane, type TestOn, endTurn, fsEntry, mountPane, ok, posix, recordToasts, stubOldState, stubPanel, stubStore } from '../test-fixtures'
 
-const WIKI = '/proj/.soap/wiki'
+const WIKI = '/proj/.mods/wiki'
 const CHECKED = 'wiki.checked:/proj'
 
 // 記在記憶體裡的 session 資料夾：路徑 → 內容。fs 的 list、read、write、exists 和 rm -rf 都照它答。
@@ -75,7 +75,7 @@ test('the Docs tab has a book icon and Spec / Wiki sub tabs; Spec is the plan li
   await ui.press({ key: 'tab:docs' })
   expect(await ui.find({ key: 'sub:spec' })).toBeDefined()
   expect(await ui.find({ key: 'sub:wiki' })).toBeDefined()
-  expect(await ui.find({ type: 'Text', text: 'No specs yet. Run /soap-mods:plan to write one.' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: 'No specs yet. Run /mods:plan to write one.' })).toBeDefined()
 
   await ui.press({ key: 'sub:wiki' })
   expect(await drawnRows(ui, 'wiki:page:')).toEqual(['wiki:page:style.md'])
@@ -144,7 +144,7 @@ test('the Wiki tab lists the pages, keeps checks in the store per session folder
   }
 })
 
-test('with no .soap/wiki the Wiki tab shows only Summary Conversation: no hint, no error, no Send', async ($, on) => {
+test('with no .mods/wiki the Wiki tab shows only Summary Conversation: no hint, no error, no Send', async ($, on) => {
   disk(on, {})
   const ui = await mountPane($)
   await ui.press({ key: 'tab:docs' })
@@ -202,7 +202,7 @@ test('Distill drafts what is worth keeping into an inbox; Accept writes a draft 
   const prompts: string[] = []
   let reply: unknown = {
     isAnswered: true,
-    text: '=== new testing.md\n- Run `claude plugin test` before a commit\n\n=== edit .soap/wiki/style.md\n# Style\n- Tabs\n- No semicolons\n=== new ../escape.md\n- dropped\n',
+    text: '=== new testing.md\n- Run `claude plugin test` before a commit\n\n=== edit .mods/wiki/style.md\n# Style\n- Tabs\n- No semicolons\n=== new ../escape.md\n- dropped\n',
     usage: {},
   }
   on('model.fork', (_$, e) => {
@@ -378,7 +378,7 @@ test('the Wiki tab draws the pages as a tree of folders that open and close, Unc
 
   // @：把頁面路徑插進聊天框的游標位置，那顆換成綠色的 Added；放不進去就跳提示。
   await ui.press({ key: 'wiki:mention:db/schema.md' })
-  expect(fills).toEqual([{ text: '@.soap/wiki/db/schema.md ', mode: 'insert' }])
+  expect(fills).toEqual([{ text: '@.mods/wiki/db/schema.md ', mode: 'insert' }])
   expect(toasts).toEqual([])
   expect((await ui.find({ key: 'wiki:mention:db/schema.md' }))?.props.label).toBe('Added')
   expect((await ui.find({ key: 'wiki:mention:style.md' }))?.props.label).toBe('@')
@@ -421,11 +421,11 @@ test('drafts can move and delete pages; accepting them in order applies each, ch
   // 打開搬移、刪除的草稿：上面標它做什麼，說會怎樣，底下是那頁現在的內容。
   await ui.press({ key: 'wiki:draft:3-move.md' })
   expect(await ui.find({ type: 'Text', text: 'move' })).toBeDefined()
-  expect(await ui.find({ type: 'Text', text: /^Moves \.soap\/wiki\/style\.md to \.soap\/wiki\/conventions\/style\.md/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /^Moves \.mods\/wiki\/style\.md to \.mods\/wiki\/conventions\/style\.md/ })).toBeDefined()
   expect(await ui.find({ type: 'Markdown', text: '# Style' })).toBeDefined()
   await ui.press({ key: 'wiki:back' })
   await ui.press({ key: 'wiki:draft:2-delete.md' })
-  expect(await ui.find({ type: 'Text', text: 'Deletes .soap/wiki/naming.md:' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: 'Deletes .mods/wiki/naming.md:' })).toBeDefined()
   await ui.press({ key: 'wiki:back' })
 
   // 照順序一份一份 Accept，草稿檔刪掉；勾著的頁面跟著搬、被刪的拿掉。
@@ -446,7 +446,7 @@ test('drafts can move and delete pages; accepting them in order applies each, ch
   await endTurn($, ui)
   await ui.press({ key: 'wiki:draft:5-clash.md' })
   await ui.press({ key: 'wiki:accept' })
-  expect(await ui.find({ type: 'Text', text: "Couldn't accept draft 5-clash.md: .soap/wiki/conventions/style.md already exists" })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: "Couldn't accept draft 5-clash.md: .mods/wiki/conventions/style.md already exists" })).toBeDefined()
   expect(files[`${WIKI}/conventions/code.md`]).toBeDefined()
   await ui.press({ key: 'wiki:discard' })
   expect(files[`${WIKI}/.drafts/5-clash.md`]).toBeUndefined()
@@ -466,7 +466,7 @@ test('drafts can move and delete pages; accepting them in order applies each, ch
   files[`${WIKI}/.drafts/6-gone.md`] = 'delete: naming.md\n'
   await endTurn($, ui)
   await ui.press({ key: 'wiki:draft:6-gone.md' })
-  expect(await ui.find({ type: 'Text', text: /^Couldn't read \.soap\/wiki\/naming\.md/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /^Couldn't read \.mods\/wiki\/naming\.md/ })).toBeDefined()
   await ui.press({ key: 'wiki:accept' })
   expect(files[`${WIKI}/.drafts/6-gone.md`]).toBeUndefined()
   expect(await drawnRows(ui, 'wiki:draft:')).toEqual([])
@@ -488,7 +488,7 @@ test('writing a wiki draft with Write checks its first line: one the Wiki tab ca
   const flagged = async (file_path: string, content: string) => ((await write(file_path, content)).context ?? []).length > 0
 
   const bad = await write(`${WIKI}/.drafts/1-goals.md`, '# Goals\n')
-  expect(bad.context?.at(-1)).toMatch(/is not a valid soap-mods wiki draft[\s\S]*`move: <page>\.md -> <new page>\.md`/)
+  expect(bad.context?.at(-1)).toMatch(/is not a valid mods wiki draft[\s\S]*`move: <page>\.md -> <new page>\.md`/)
   expect(toasts).toHaveLength(1)
 
   for (const [content, isBad] of [
@@ -506,7 +506,7 @@ test('writing a wiki draft with Write checks its first line: one the Wiki tab ca
   }
 
   for (const [path, isChecked] of [
-    ['C:\\proj\\.soap\\wiki\\.drafts\\3-x.md', true],
+    ['C:\\proj\\.mods\\wiki\\.drafts\\3-x.md', true],
     [`${WIKI}/.drafts/old/4-x.md`, false],
     [`${WIKI}/goals.md`, false],
   ] as const) {

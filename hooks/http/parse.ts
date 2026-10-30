@@ -276,7 +276,7 @@ export function utf8Size(text: string): number {
 /** A file's name as the panel shows it: without its folder and `.http`. */
 export const fileTitle = (file: string) => splitPath(file).name.replace(/\.http$/i, '')
 
-/** The folder under `.soap/http` a request file is in (one level), '' for none. */
+/** The folder under `.mods/http` a request file is in (one level), '' for none. */
 export const folderOf = (file: string) => splitPath(file).dir
 
 export const httpFolders = (requests: readonly HttpRequest[]) => [...new Set(requests.map(r => folderOf(r.file)))].filter(f => f !== '').sort(byName)

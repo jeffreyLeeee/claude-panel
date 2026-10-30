@@ -8,7 +8,7 @@ import { type Pane, type TestOn, endTurn, fakeKeychain, fsEntry, json, mountPane
 type Run = { argv: readonly string[]; init?: ProcessRunInit }
 type Fetch = { url: string; init?: HttpInit }
 
-const DIR = '/proj/.soap/http'
+const DIR = '/proj/.mods/http'
 const PASSWORD = 'pä55 "word"'
 
 const API_HTTP = `### Get a user
@@ -38,7 +38,7 @@ async function useEnv(ui: Pane, env: string) {
 
 const ENV = JSON.stringify({ $shared: { version: 'v1' }, dev: { host: 'http://localhost:3000' }, prod: { host: 'https://api.example.com' } })
 
-// HTTP 子分頁要的引擎回應：session 資料夾 root（預設 /proj），它的 .soap/http 的檔案（給了才有這個資料夾）、$.store 放在記憶體、Keychain 是 fakeKeychain，
+// HTTP 子分頁要的引擎回應：session 資料夾 root（預設 /proj），它的 .mods/http 的檔案（給了才有這個資料夾）、$.store 放在記憶體、Keychain 是 fakeKeychain，
 // http.fetch 交給 answer（沒給就 200 回 { id: 1 }），curl 交給 curl（拿 stdin 的設定），rm 刪掉那個檔，osascript 是開了 vim 的視窗，
 // 暫存檔和 open 交給 tmp。記下每個程序、每次 fetch、toast。
 function httpWorld(
@@ -51,7 +51,7 @@ function httpWorld(
   const fetches: Fetch[] = []
   const toasts: string[] = []
   const tmp = tempFiles()
-  // hold：給了就讓列出 .soap/http 等它（重讀到一半）。
+  // hold：給了就讓列出 .mods/http 等它（重讀到一半）。
   const state: { files: Record<string, string> | undefined; hold?: Promise<void> } = { files }
   const at = (path: string | undefined) => posix(path)?.slice(DIR.length + 1) ?? ''
   stubPanel(on, { root, now: null })
@@ -66,7 +66,7 @@ function httpWorld(
   })
   on('env.get', () => ({ value: undefined }))
   on('fs.exists', (_$, e) => ({ value: state.files !== undefined && (posix(e.path) === DIR || state.files[at(e.path)] !== undefined) }))
-  // 一層資料夾：.soap/http 列出檔案和資料夾，資料夾列出它的檔案。
+  // 一層資料夾：.mods/http 列出檔案和資料夾，資料夾列出它的檔案。
   on('fs.list', async (_$, e) => {
     const path = posix(e.path) ?? ''
     if (path !== DIR && !path.startsWith(`${DIR}/`)) return { value: [] }
@@ -120,7 +120,7 @@ const codes = async (ui: Pane) => (await ui.findAll({ type: 'Code' })).map(c => 
 // 列表上請求那幾列的 key，照畫的順序。
 const reqRows = async (ui: Pane) => (await ui.findAll({ type: 'Button' })).map(b => String(b.key)).filter(k => k.startsWith('http:req:'))
 
-test('the top tabs are Files, Git, Tools and Docs; with no .soap/http the HTTP sub tab offers New, with no hints', async ($, on) => {
+test('the top tabs are Files, Git, Tools and Docs; with no .mods/http the HTTP sub tab offers New, with no hints', async ($, on) => {
   httpWorld(on)
   const ui = await mountPane($)
   expect((await ui.findAll({ type: 'Button' })).map(b => b.key).filter(k => k?.startsWith('tab:'))).toEqual(['tab:files', 'tab:git', 'tab:tools', 'tab:docs'])
@@ -159,13 +159,13 @@ async function vimEdit(ui: Pane, world: ReturnType<typeof httpWorld>, text: stri
 const label = async (ui: Pane, key: string) => String((await ui.find({ key }))?.props.label)
 const shown = async (ui: Pane) => (await codes(ui))[0]
 
-test('New writes a request into its own file under .soap/http, the name being the file name without .http', async ($, on) => {
+test('New writes a request into its own file under .mods/http, the name being the file name without .http', async ($, on) => {
   const world = httpWorld(on)
   const ui = await mountPane($)
   await openTool(ui, 'http')
   await ui.press({ key: 'http:new' })
   expect(await shown(ui)).toBe('GET https://example.com')
-  // 名稱只能是 .soap/http 底下的一個檔：../x 不寫，說哪裡不對。
+  // 名稱只能是 .mods/http 底下的一個檔：../x 不寫，說哪裡不對。
   await ui.input({ key: 'http:draft:file', text: '../x' })
   expect(await ui.find({ type: 'Text', text: /^A name has only letters/ })).toBeDefined()
   expect(world.state.files).toBeUndefined()
@@ -312,7 +312,7 @@ test('a request goes in a folder picked or added in the editor; folders fold on 
   expect(Object.keys(world.state.files ?? {}).sort()).toEqual(['會員/a.http', '會員/登入.http', '賽事/刷新.http'])
   expect(await label(ui, 'http:folder:會員')).toBe('▾ 會員 (2)')
 
-  // 搬出去（None）：檔案回 .soap/http，空了的資料夾不列。
+  // 搬出去（None）：檔案回 .mods/http，空了的資料夾不列。
   await ui.press({ key: 'http:folder:賽事' })
   await ui.press({ key: 'http:req:賽事/刷新.http#0' })
   expect(await label(ui, 'http:draft:folder')).toMatch(/賽事/)
@@ -324,7 +324,7 @@ test('a request goes in a folder picked or added in the editor; folders fold on 
   await ui.unmount()
 })
 
-test('the list searches names, methods and URLs, unfolding folders; Open shows .soap/http in Finder, making it first', async ($, on) => {
+test('the list searches names, methods and URLs, unfolding folders; Open shows .mods/http in Finder, making it first', async ($, on) => {
   const world = httpWorld(on, { files: { 'a.http': '###\nGET https://x.test/a\n', '賽事/刷新.http': '###\nPOST https://x.test/refresh\n' } })
   const ui = await mountPane($)
   await openTool(ui, 'http')
@@ -358,17 +358,17 @@ test('a multipart request is sent through curl, its settings on stdin, a file re
       'upload.http': [
         '###',
         'POST {{host}}/upload',
-        'Content-Type: multipart/form-data; boundary=----SoapBoundary',
+        'Content-Type: multipart/form-data; boundary=----Boundary',
         '',
-        '------SoapBoundary',
+        '------Boundary',
         'Content-Disposition: form-data; name="title"',
         '',
         'hi',
-        '------SoapBoundary',
+        '------Boundary',
         'Content-Disposition: form-data; name="file"; filename="a.png"',
         '',
         '< ./a.png',
-        '------SoapBoundary--',
+        '------Boundary--',
         '',
       ].join('\n'),
     },
@@ -383,7 +383,7 @@ test('a multipart request is sent through curl, its settings on stdin, a file re
   expect(curls.map(r => r.argv)).toEqual([['curl', '--config', '-']])
   const config = curls[0]?.init?.stdin ?? ''
   expect(config).toContain('request = "POST"\nurl = "http://localhost:3000/upload"\n')
-  expect(config).toContain('form-string = "title=hi"\nform = "file=@\\"/proj/.soap/http/a.png\\""\n')
+  expect(config).toContain('form-string = "title=hi"\nform = "file=@\\"/proj/.mods/http/a.png\\""\n')
   expect(config).not.toContain('Content-Type')
   expect(await ui.find({ type: 'Text', text: '201' })).toBeDefined()
   expect(await codes(ui)).toContain('{\n  "id": 7\n}')
@@ -547,7 +547,7 @@ test('a # @prompt variable is filled in on the request page, kept by session fol
   await ui.unmount()
 })
 
-test('Open on the response page writes the body to a new file under .soap/tmp, .json or .txt, and opens it in the default app', async ($, on) => {
+test('Open on the response page writes the body to a new file under .mods/tmp, .json or .txt, and opens it in the default app', async ($, on) => {
   let answer = json(200, '{"id":1}', { 'content-type': 'application/json' })
   const world = httpWorld(on, { files: { 'a.http': 'GET http://localhost:9/x\n' }, answer: () => answer })
   const { tmp } = world
@@ -557,9 +557,9 @@ test('Open on the response page writes the body to a new file under .soap/tmp, .
   await ui.press({ key: 'http:response:open' })
   // 先放 .gitignore（*），暫存檔不進 Git；檔名帶到毫秒的時間。
   const [ignore, first] = Object.keys(tmp.written)
-  expect(ignore).toBe('/proj/.soap/tmp/.gitignore')
+  expect(ignore).toBe('/proj/.mods/tmp/.gitignore')
   expect(tmp.written[ignore ?? '']).toBe('*\n')
-  expect(first).toMatch(/^\/proj\/\.soap\/tmp\/response-\d{8}-\d{6}-\d{3}\.json$/)
+  expect(first).toMatch(/^\/proj\/\.mods\/tmp\/response-\d{8}-\d{6}-\d{3}\.json$/)
   expect(tmp.written[first ?? '']).toBe('{\n  "id": 1\n}')
   expect(tmp.opens).toEqual([['open', first]])
   expect(world.toasts).toEqual(['Opened the response'])
@@ -712,9 +712,9 @@ test('a .http file Claude writes shows when its turn ends', async ($, on) => {
 test("Claude's Bash may not read or use the HTTP secrets", async ($, on) => {
   httpWorld(on)
   on('tool.call', () => ({ result: { stdout: '', stderr: '' } as never }))
-  for (const command of ['security find-generic-password -s soap-mods-http -w', "jq '.\"http.secrets\"' store.json"]) {
+  for (const command of ['security find-generic-password -s mods-http -w', "jq '.\"http.secrets\"' store.json"]) {
     const r = await $.tool.call({ tool: 'Bash', command })
-    expect(r.deny).toContain('Blocked by soap-mods')
+    expect(r.deny).toContain('Blocked by mods')
   }
 })
 

@@ -2,9 +2,9 @@ export type TabId = 'git' | 'files' | 'tools' | 'docs'
 /** Top tabs an older load may have kept in `$.state`: services and db (before the Tools tab) read as that Tools sub tab, spec (the Docs tab's old id) as docs. */
 export type OldTabId = 'services' | 'db' | 'spec'
 export type GitSubTab = 'diff' | 'branch' | 'log' | 'ci' | 'mr' | 'conflict'
-/** The Docs tab's sub tabs: the plans under `.soap/tasks`, and the wiki pages under `.soap/wiki`. */
+/** The Docs tab's sub tabs: the plans under `.mods/tasks`, and the wiki pages under `.mods/wiki`. */
 export type DocsSubTab = 'spec' | 'wiki'
-/** The Tools tab's sub tabs: the local services, SQL Server, and the requests in `.soap/http`. */
+/** The Tools tab's sub tabs: the local services, SQL Server, and the requests in `.mods/http`. */
 export type ToolsSubTab = 'services' | 'db' | 'http'
 /** The tabs that have sub tabs, and the sub tab each one shows. */
 export type SubTabs = { git: GitSubTab; docs: DocsSubTab; tools: ToolsSubTab }
@@ -190,7 +190,7 @@ export type MergeView = MergeText & {
   error: string
 }
 
-/** What covers the tabs in Soap Panel, one at a time: a diff, a conflicted file's merge, or a file's text; none shows the tabs. */
+/** What covers the tabs in Panel, one at a time: a diff, a conflicted file's merge, or a file's text; none shows the tabs. */
 export type Cover =
   | { kind: 'none' }
   | { kind: 'diff'; data: DiffPaneView }
@@ -306,7 +306,7 @@ export type FileView = {
   stamp: string
 }
 
-/** A plan the plan skill writes to `.soap/tasks/<feature>/plan.yaml`, as read; a missing or wrong field is empty. */
+/** A plan the plan skill writes to `.mods/tasks/<feature>/plan.yaml`, as read; a missing or wrong field is empty. */
 export type Plan = {
   branch: string
   issueNumber: string
@@ -317,7 +317,7 @@ export type Plan = {
   verify: string[]
 }
 
-/** One feature folder under `.soap/tasks`. */
+/** One feature folder under `.mods/tasks`. */
 export type SpecEntry = {
   name: string
   /** plan.yaml's modified time; 0 when the folder has none. */
@@ -330,7 +330,7 @@ export type SpecView = {
   isLoaded: boolean
   /** Newest plan first; folders without a plan.yaml last. */
   specs: SpecEntry[]
-  /** Why listing `.soap/tasks` failed, '' when none (a missing folder is no specs, not an error). */
+  /** Why listing `.mods/tasks` failed, '' when none (a missing folder is no specs, not an error). */
   error: string
   /** The feature opened, '' for the list. */
   open: string
@@ -347,11 +347,11 @@ export type SpecView = {
 export type WikiModel = 'opus' | 'sonnet' | 'haiku'
 
 /**
- * One draft Distill or the wiki skill wrote to `.soap/wiki/.drafts`, waiting to be accepted or discarded: it writes a
- * whole page (new, or replacing one), moves (renames) a page, or deletes one. Page paths are relative to `.soap/wiki`.
+ * One draft Distill or the wiki skill wrote to `.mods/wiki/.drafts`, waiting to be accepted or discarded: it writes a
+ * whole page (new, or replacing one), moves (renames) a page, or deletes one. Page paths are relative to `.mods/wiki`.
  */
 export type WikiDraft = {
-  /** The draft's file name under `.soap/wiki/.drafts`. */
+  /** The draft's file name under `.mods/wiki/.drafts`. */
   id: string
 } & (
   | {
@@ -367,13 +367,13 @@ export type WikiDraft = {
 export type WikiView = {
   /** False before the first listing finishes. */
   isLoaded: boolean
-  /** Page paths relative to `.soap/wiki` with `/`, `.md` included; by path. */
+  /** Page paths relative to `.mods/wiki` with `/`, `.md` included; by path. */
   pages: string[]
   /** Paths of the checked pages that exist, as the mod's store keeps them for this session root. */
   checked: string[]
   /** Oldest first. */
   drafts: WikiDraft[]
-  /** Why listing `.soap/wiki` or saving the checked pages failed, '' when none (a missing folder is no pages, not an error). */
+  /** Why listing `.mods/wiki` or saving the checked pages failed, '' when none (a missing folder is no pages, not an error). */
   error: string
   /** Why the last delete, accept or discard failed, '' when none. */
   deleteError: string
@@ -641,11 +641,11 @@ export type HttpHeader = { name: string; value: string }
 /** `# @capture name = body.a.b`: after a 2xx, the value at that path of the JSON response becomes the variable `name`. */
 export type HttpCapture = { name: string; path: string }
 
-/** One request of a `.http` file under `.soap/http` (REST Client / JetBrains format), as written: `{{name}}` not yet replaced. */
+/** One request of a `.http` file under `.mods/http` (REST Client / JetBrains format), as written: `{{name}}` not yet replaced. */
 export type HttpRequest = {
   /** `<file>#<index>`. */
   id: string
-  /** The file's path under `.soap/http`: `name.http`, or `folder/name.http` (one level of folders). */
+  /** The file's path under `.mods/http`: `name.http`, or `folder/name.http` (one level of folders). */
   file: string
   /** It is its file's only request: the file's name is its name, and editing it can rename or move the file. */
   isOwnFile: boolean
@@ -694,7 +694,7 @@ export type HttpPage = 'api' | 'env'
 export type HttpPart = { name: string; value: string; isFile: boolean }
 
 /**
- * A request being edited on the panel, written to `.soap/http` on Save: a request's block, or a new request for `file`.
+ * A request being edited on the panel, written to `.mods/http` on Save: a request's block, or a new request for `file`.
  * `text` is the block's text, edited in vim (Notepad on Windows when there is no vim) and read back as it is saved there.
  */
 export type HttpDraft = ({ kind: 'request'; id: string } | { kind: 'new' }) & {
@@ -709,7 +709,7 @@ export type HttpDraft = ({ kind: 'request'; id: string } | { kind: 'new' }) & {
   isNewFolder: boolean
 }
 
-/** The Tools tab's HTTP sub tab: the requests in `.soap/http/*.http` and its folders (one level), the environment picked, and the last response. */
+/** The Tools tab's HTTP sub tab: the requests in `.mods/http/*.http` and its folders (one level), the environment picked, and the last response. */
 export type HttpView = {
   /** False before the first listing finishes. */
   isLoaded: boolean
@@ -767,7 +767,7 @@ export type HttpView = {
 
 declare module 'claude-code' {
   interface PluginState {
-    'soap-mods': {
+    'mods': {
       /** An older load may have kept a tab that is now a Tools sub tab (OldTabId); read through normalizeTabs. */
       tab: TabId | OldTabId
       /** The sub tab each tab with sub tabs shows; an older load's lacks the ones added since or keeps Docs' under spec (normalizeTabs fills them). */

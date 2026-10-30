@@ -9,7 +9,7 @@ const GUARDED = [CI_KEYCHAIN_SERVICE, DB_KEYCHAIN_SERVICE, HTTP_KEYCHAIN_SERVICE
 // 指令裡沒有這些程式就不擋：grep 原始碼、改檔時提到機密的名稱不算。前後不是字母、數字、-：security-review 這種名稱不算。
 const READERS = /(?:^|[^\w-])(?:security|powershell|pwsh|curl|wget|jq|invoke-restmethod|invoke-webrequest)(?:[^\w-]|$)/i
 
-/** Why `command` may not run, '' when it may: it runs a program that could read or use a secret Soap Panel keeps, and names that secret. */
+/** Why `command` may not run, '' when it may: it runs a program that could read or use a secret Panel keeps, and names that secret. */
 export function secretCommandReason(command: string): string {
   if (!READERS.test(command)) return ''
   const text = command.toLowerCase()
@@ -17,5 +17,5 @@ export function secretCommandReason(command: string): string {
 
   return hit === undefined
     ? ''
-    : `Blocked by soap-mods: this command touches "${hit}", a secret only Soap Panel may use (the GitLab token, a DB password or an HTTP request's secret). Use the panel instead; do not try another way.`
+    : `Blocked by mods: this command touches "${hit}", a secret only Panel may use (the GitLab token, a DB password or an HTTP request's secret). Use the panel instead; do not try another way.`
 }

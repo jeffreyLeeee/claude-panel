@@ -46,14 +46,14 @@ const keychainDeleteArgv = (r: SecretRef) => ['security', 'delete-generic-passwo
 
 // ───── Windows：DPAPI ─────
 
-// 加密：機密（的十六進位）從環境變數 SOAP_SECRET 進來，印出 DPAPI 的密文。
+// 加密：機密（的十六進位）從環境變數 MODS_SECRET 進來，印出 DPAPI 的密文。
 const WIN_PROTECT_ARGV = powershellArgv(
-  "$ErrorActionPreference = 'Stop'; ConvertTo-SecureString $env:SOAP_SECRET -AsPlainText -Force | ConvertFrom-SecureString",
+  "$ErrorActionPreference = 'Stop'; ConvertTo-SecureString $env:MODS_SECRET -AsPlainText -Force | ConvertFrom-SecureString",
 )
 
-// 解密：密文從環境變數 SOAP_BLOB 進來，印出十六進位。
+// 解密：密文從環境變數 MODS_BLOB 進來，印出十六進位。
 const WIN_UNPROTECT_ARGV = powershellArgv(
-  "$ErrorActionPreference = 'Stop'; $s = ConvertTo-SecureString $env:SOAP_BLOB; [Console]::Out.Write((New-Object System.Management.Automation.PSCredential 'x', $s).GetNetworkCredential().Password)",
+  "$ErrorActionPreference = 'Stop'; $s = ConvertTo-SecureString $env:MODS_BLOB; [Console]::Out.Write((New-Object System.Management.Automation.PSCredential 'x', $s).GetNetworkCredential().Password)",
 )
 
 // ───── 存、讀、刪 ─────
@@ -68,7 +68,7 @@ const cacheKey = (r: SecretRef) => `${r.service}\n${r.account}`
 export async function saveSecret(io: Io, r: SecretRef, secret: string): Promise<string> {
   let saved = KEYCHAIN
   if (await isWindows(io)) {
-    saved = (await runOk(io, WIN_PROTECT_ARGV, 'DPAPI', { env: { SOAP_SECRET: toHex(secret) } })).stdout.trim()
+    saved = (await runOk(io, WIN_PROTECT_ARGV, 'DPAPI', { env: { MODS_SECRET: toHex(secret) } })).stdout.trim()
   } else {
     await runOk(io, MAC_SAVE_ARGV, 'security', { stdin: keychainSaveInput(r, secret), timeoutMs: KEYCHAIN_TIMEOUT_MS })
     await runOk(io, keychainCheckArgv(r), 'security')
@@ -84,7 +84,7 @@ export function readSecret(io: Io, r: SecretRef, saved: string): Promise<string>
   const cached = cache.get(key)
   if (cached !== undefined) return cached
   const load = (async () => {
-    if (!isKeychain(saved)) return fromHex((await runOk(io, WIN_UNPROTECT_ARGV, 'DPAPI', { env: { SOAP_BLOB: saved } })).stdout)
+    if (!isKeychain(saved)) return fromHex((await runOk(io, WIN_UNPROTECT_ARGV, 'DPAPI', { env: { MODS_BLOB: saved } })).stdout)
     const res = await io.run(keychainReadArgv(r), { timeoutMs: KEYCHAIN_TIMEOUT_MS })
     if (res.exitCode !== 0) throw new Error("Couldn't read it from the Keychain (access denied?).")
 

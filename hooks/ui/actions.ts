@@ -79,7 +79,7 @@ export type Actions = {
   pickRange: (c: GitCommit) => unknown
   closeCommit: () => unknown
   openCommitDiff: (commits: GitCommit[], f: CommitFile, files: CommitFile[]) => unknown
-  // 差異（畫在 Soap Panel 裡）
+  // 差異（畫在 Panel 裡）
   stepDiffFile: (step: 1 | -1) => unknown
   // 關掉蓋住分頁的差異、合併、檔案內容，回到分頁
   closeCover: () => unknown
@@ -90,7 +90,7 @@ export type Actions = {
   // files
   // dir：相對 session 資料夾，'' 是它本身。
   openDir: (dir: string) => unknown
-  // 看檔案內容（畫在 Soap Panel 裡）；path 一樣相對 session 資料夾。
+  // 看檔案內容（畫在 Panel 裡）；path 一樣相對 session 資料夾。
   openFile: (path: string) => unknown
   stepFile: (step: 1 | -1) => unknown
   // 從 session 資料夾往下找檔名。
@@ -102,14 +102,14 @@ export type Actions = {
   // 刪掉檔案或整個資料夾：按第一次只是待確認，再按才刪。
   deleteFile: (path: string) => unknown
   openShownFile: () => unknown
-  // spec：name 是 .soap/tasks 底下的 feature 資料夾。
+  // spec：name 是 .mods/tasks 底下的 feature 資料夾。
   openSpec: (name: string) => unknown
   closeSpec: () => unknown
   // 叫 Claude 照打開的那份 plan.yaml 做。
   doSpec: () => unknown
   // 刪掉整個 feature 資料夾：按第一次只是待確認（打勾），再按才刪。
   deleteSpec: (name: string) => unknown
-  // wiki：path 是 .soap/wiki 底下的頁面，id 是 .soap/wiki/.drafts 底下的草稿檔名。
+  // wiki：path 是 .mods/wiki 底下的頁面，id 是 .mods/wiki/.drafts 底下的草稿檔名。
   // 勾選框：選要 Send 的頁面（存在 mod 的 store，依 session 資料夾分開，下次開還勾著）。
   toggleWikiPage: (path: string) => unknown
   uncheckAllWikiPages: () => unknown
@@ -120,7 +120,7 @@ export type Actions = {
   openWikiPage: (path: string) => unknown
   // 關掉打開的頁面或草稿，回清單。
   closeWiki: () => unknown
-  // 刪 .soap/wiki 底下的頁面或草稿（.drafts/<id>）：按第一次只是待確認（打勾），再按才刪；頁面也從勾選清單拿掉。
+  // 刪 .mods/wiki 底下的頁面或草稿（.drafts/<id>）：按第一次只是待確認（打勾），再按才刪；頁面也從勾選清單拿掉。
   deleteWikiFile: (path: string) => unknown
   openWikiDraft: (id: string) => unknown
   // 照打開的草稿改 wiki（寫整頁、搬移、刪除）並刪掉草稿；捨棄只刪草稿。
@@ -166,7 +166,7 @@ export type Actions = {
   openHttpResponse: () => unknown
   // HTTP 底下那排：API（請求）或 Environment（環境、變數、機密）。
   selectHttpPage: (page: HttpPage) => unknown
-  // 在面板上寫 .soap/http：新請求、編輯點開的請求（Folder、Name 在面板上打，那段原文在新視窗的 vim 裡改）；
+  // 在面板上寫 .mods/http：新請求、編輯點開的請求（Folder、Name 在面板上打，那段原文在新視窗的 vim 裡改）；
   // 打字和 vim 存的跟著存草稿，Save 寫檔，Cancel 是 closeHttpRequest，刪請求要按兩次。
   newHttpRequest: () => unknown
   editHttpRequest: () => unknown
@@ -176,7 +176,7 @@ export type Actions = {
   pickHttpFolder: (folder: string) => unknown
   foldHttpFolder: (folder: string, isFolded: boolean) => unknown
   openHttpFolderPicker: (isOpen: boolean) => unknown
-  // openHttpDir 在 Finder／檔案總管打開 .soap/http（沒有就建立）。
+  // openHttpDir 在 Finder／檔案總管打開 .mods/http（沒有就建立）。
   searchHttp: (text: string) => unknown
   openHttpDir: () => unknown
   saveHttpDraft: () => unknown
@@ -225,7 +225,7 @@ export type Actions = {
   toggleMrResolved: () => unknown
   // 在瀏覽器打開 GitLab 的頁面。
   openMrLink: (url: string) => unknown
-  // 合併（畫在 Soap Panel 裡）
+  // 合併（畫在 Panel 裡）
   editChunks: (edit: (chunks: MergeChunk[]) => MergeChunk[]) => unknown
   jumpConflict: (step: 1 | -1) => unknown
   takeSide: (side: 'ours' | 'theirs' | 'as-is') => unknown
@@ -236,7 +236,7 @@ export type Actions = {
   focusInput: (key: string) => unknown
 }
 
-// Soap Panel 畫一次要的全部資料。
+// Panel 畫一次要的全部資料。
 export type PanelData = {
   surface: RenderSurface
   bodyRows: number

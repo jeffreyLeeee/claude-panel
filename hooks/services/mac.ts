@@ -40,7 +40,7 @@ export const MAC_PPIDS_ARGV = ['ps', '-axww', '-o', 'pid=,ppid=,lstart=']
 export const MAC_LAUNCH_ARGV = [
   '/bin/sh',
   '-c',
-  'cd "$SOAP_DIR" || exit 1\nnohup /bin/sh -c "$SOAP_CMD" </dev/null >/dev/null 2>&1 &\necho "$!"',
+  'cd "$MODS_DIR" || exit 1\nnohup /bin/sh -c "$MODS_CMD" </dev/null >/dev/null 2>&1 &\necho "$!"',
 ]
 
 // 只有字母、數字、空白和路徑、旗標常見的符號：交給 sh 重新解讀跟原本一樣。

@@ -179,18 +179,18 @@ export function readPlan(text: string): { plan: Plan; problems: string[] } {
   }
 }
 
-/** The plan of feature `name`, relative to the session folder: `.soap/tasks/<name>/plan.yaml`. */
+/** The plan of feature `name`, relative to the session folder: `.mods/tasks/<name>/plan.yaml`. */
 export const planPath = (name: string) => `${SPEC_DIR}/${name}/${PLAN_FILE}`
 
 const PLAN_PATH = new RegExp(`(^|/)${escapeRegExp(SPEC_DIR)}/[^/]+/${escapeRegExp(PLAN_FILE)}$`)
 
-/** Whether `path` (any separator) is a plan the plan skill writes: `…/.soap/tasks/<feature>/plan.yaml`. */
+/** Whether `path` (any separator) is a plan the plan skill writes: `…/.mods/tasks/<feature>/plan.yaml`. */
 export const isPlanPath = (path: string) => PLAN_PATH.test(path.replace(/\\/g, '/'))
 
 /** What Claude reads after writing a plan.yaml with `problems`: what to fix, and the keys a plan has. */
 export function planFixNote(path: string, problems: readonly string[]): string {
   return [
-    `${path} is not a valid soap-mods plan.yaml. Fix it:`,
+    `${path} is not a valid mods plan.yaml. Fix it:`,
     ...problems.map(p => `- ${p}`),
     `Required keys: description (non-empty string), ${LIST_KEYS.join(', ')} (lists; [] when empty). Optional: ${OPTIONAL.join(', ')} (strings).`,
   ].join('\n')

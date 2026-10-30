@@ -1,4 +1,4 @@
-// 差異（畫在 Soap Panel 裡）：工作區檔案、commit 裡的檔案，和 diff 分頁的刪除、rollback。
+// 差異（畫在 Panel 裡）：工作區檔案、commit 裡的檔案，和 diff 分頁的刪除、rollback。
 
 import type { CommitFile, DiffPaneView, GitCommit, GitFile } from '../../types'
 import { coverData, showCover } from '../cover'
@@ -54,7 +54,7 @@ export async function readDiff(io: GitIo, files: GitFile[], path: string): Promi
   return { ...EMPTY_DIFF, path, kind: fileKind(file), ...result, files: diffSteps(files) }
 }
 
-// 在 Soap Panel 裡看這個檔案的差異（蓋掉分頁），捲回最上面從頭看。按的那列不見了，焦點圈由 checkPressed 移到 Back。
+// 在 Panel 裡看這個檔案的差異（蓋掉分頁），捲回最上面從頭看。按的那列不見了，焦點圈由 checkPressed 移到 Back。
 async function showDiff(io: GitIo, pane: DiffPaneView) {
   await io.updateCover(c => showCover(c, 'diff', pane))
   await io.scrollTop()

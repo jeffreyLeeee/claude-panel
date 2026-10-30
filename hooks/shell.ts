@@ -27,7 +27,7 @@ export async function isWindows(io: Io) {
 // 刪檔案或整個資料夾（diff、Files、Spec、Wiki 都走這裡）：macOS 用 rm -rf，Windows 用 PowerShell 的 Remove-Item；
 // 路徑從環境變數給，不拼進指令。連結（junction、symlink）只刪連結本身：Windows PowerShell 的 Remove-Item -Recurse 會進到目標裡刪。
 const REMOVE_ARGV = powershellArgv(
-  "$ErrorActionPreference = 'Stop'; $i = Get-Item -LiteralPath $env:SOAP_PATH -Force; if ($i.Attributes -band [IO.FileAttributes]::ReparsePoint) { $i.Delete() } else { Remove-Item -LiteralPath $env:SOAP_PATH -Recurse -Force }",
+  "$ErrorActionPreference = 'Stop'; $i = Get-Item -LiteralPath $env:MODS_PATH -Force; if ($i.Attributes -band [IO.FileAttributes]::ReparsePoint) { $i.Delete() } else { Remove-Item -LiteralPath $env:MODS_PATH -Recurse -Force }",
 )
 
 // 只刪 session 資料夾底下的東西：不在它底下、或路徑裡有 . 和 .. 的不刪。
@@ -39,26 +39,26 @@ export async function removePath(io: Io, abs: string) {
   if (!rel.startsWith(root) || rel.slice(root.length).split('/').some(p => p === '' || p === '.' || p === '..')) {
     throw new Error('outside the session folder')
   }
-  if (await isWindows(io)) await runOk(io, REMOVE_ARGV, 'Remove-Item', { env: { SOAP_PATH: abs } })
+  if (await isWindows(io)) await runOk(io, REMOVE_ARGV, 'Remove-Item', { env: { MODS_PATH: abs } })
   else await runOk(io, ['rm', '-rf', '--', abs], 'rm')
 }
 
 // 在瀏覽器打開網址：網址從環境變數給 PowerShell，不拼進指令。
-const OPEN_URL_ARGV = powershellArgv("$ErrorActionPreference = 'Stop'; Start-Process $env:SOAP_URL")
+const OPEN_URL_ARGV = powershellArgv("$ErrorActionPreference = 'Stop'; Start-Process $env:MODS_URL")
 
 export async function openUrl(io: Io, url: string) {
-  if (await isWindows(io)) await runOk(io, OPEN_URL_ARGV, 'Start-Process', { env: { SOAP_URL: url } })
+  if (await isWindows(io)) await runOk(io, OPEN_URL_ARGV, 'Start-Process', { env: { MODS_URL: url } })
   else await runOk(io, ['open', url], 'open')
 }
 
 // 在 Finder／檔案總管打開資料夾，沒有就先建立。Windows 由 Start-Process 開（直接跑 explorer 會照引擎隱藏子程式視窗的設定開成看不見的視窗）；
 // 路徑從環境變數給，不拼進指令。
 const OPEN_DIR_ARGV = powershellArgv(
-  "$ErrorActionPreference = 'Stop'; New-Item -ItemType Directory -Force -Path $env:SOAP_PATH | Out-Null; Start-Process $env:SOAP_PATH",
+  "$ErrorActionPreference = 'Stop'; New-Item -ItemType Directory -Force -Path $env:MODS_PATH | Out-Null; Start-Process $env:MODS_PATH",
 )
 
 export async function openDir(io: Io, abs: string) {
-  if (await isWindows(io)) await runOk(io, OPEN_DIR_ARGV, 'Explorer', { env: { SOAP_PATH: abs.replace(/\//g, '\\') } })
+  if (await isWindows(io)) await runOk(io, OPEN_DIR_ARGV, 'Explorer', { env: { MODS_PATH: abs.replace(/\//g, '\\') } })
   else {
     await runOk(io, ['mkdir', '-p', '--', abs], 'mkdir')
     await runOk(io, ['open', abs], 'open')

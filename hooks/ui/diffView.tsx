@@ -1,4 +1,4 @@
-// 選中檔案的差異，畫在 Soap Panel 裡蓋掉分頁：
+// 選中檔案的差異，畫在 Panel 裡蓋掉分頁：
 // diff 分頁的未提交變更，或 log 分頁某個 commit 裡的檔案（路徑後面加 @ sha）。
 
 import type { DiffPage, DiffPaneView } from '../../types'

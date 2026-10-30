@@ -140,7 +140,7 @@ export async function toggleFileMenu(io: FilesIo, path: string) {
 // Windows：直接跑 explorer 會照引擎隱藏子程式視窗的設定，開成看不見的視窗；改由 Start-Process 用一般視窗開。
 // 路徑從環境變數給，不拼進指令。
 const REVEAL_ARGV = powershellArgv(
-  "$ErrorActionPreference = 'Stop'; Start-Process -FilePath explorer.exe -WindowStyle Normal -ArgumentList ('/select,\"' + $env:SOAP_PATH + '\"')",
+  "$ErrorActionPreference = 'Stop'; Start-Process -FilePath explorer.exe -WindowStyle Normal -ArgumentList ('/select,\"' + $env:MODS_PATH + '\"')",
 )
 
 // 在檔案總管裡選起它（資料夾也是在上一層選起來）；macOS 用 open -R。
@@ -148,7 +148,7 @@ export async function revealFile(io: FilesIo, path: string) {
   const abs = absPath(await io.root(), path)
   try {
     const onWindows = await isWindows(io)
-    if (onWindows) await runOk(io, REVEAL_ARGV, 'Explorer', { env: { SOAP_PATH: abs.replace(/\//g, '\\') } })
+    if (onWindows) await runOk(io, REVEAL_ARGV, 'Explorer', { env: { MODS_PATH: abs.replace(/\//g, '\\') } })
     else await runOk(io, ['open', '-R', abs], 'open')
     // Explorer 常開在後面，看不出有沒有打開。
     io.toast(`Shown in ${onWindows ? 'Explorer' : 'Finder'}`)
@@ -215,7 +215,7 @@ async function readFileView(io: FilesIo, path: string, known: string): Promise<F
   }
 }
 
-// 在 Soap Panel 裡看檔案內容（蓋掉分頁）。換了檔案才捲回最上面，回合結束重讀同一個檔案不捲；內容沒變不寫，不重畫。
+// 在 Panel 裡看檔案內容（蓋掉分頁）。換了檔案才捲回最上面，回合結束重讀同一個檔案不捲；內容沒變不寫，不重畫。
 export async function showFile(io: FilesIo, path: string) {
   const isStale = fileReads.start()
   const prev = await io.getFileCover()

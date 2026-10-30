@@ -11,7 +11,7 @@ $ErrorActionPreference = 'SilentlyContinue'
 $ProgressPreference = 'SilentlyContinue'
 $src = @'
 using System; using System.Runtime.InteropServices;
-public static class SoapProcCwd {
+public static class ProcCwd {
   [DllImport("ntdll.dll")] static extern int NtQueryInformationProcess(IntPtr h, int c, ref PBI i, int l, out int r);
   [DllImport("kernel32.dll")] static extern IntPtr OpenProcess(int a, bool b, int p);
   [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr h);
@@ -37,7 +37,7 @@ public static class SoapProcCwd {
 '@
 # 檔名帶原始碼的 hash：原始碼改了就重新編譯，不會一直載入舊的 dll。
 $hash = [BitConverter]::ToString([Security.Cryptography.SHA256]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes($src))).Replace('-', '').Substring(0, 16)
-$dll = Join-Path $env:TEMP "soap-mods\proc-cwd-$hash.dll"
+$dll = Join-Path $env:TEMP "mods\proc-cwd-$hash.dll"
 if (-not (Test-Path $dll)) {
   New-Item -ItemType Directory -Force (Split-Path $dll) | Out-Null
   Add-Type -TypeDefinition $src -OutputAssembly $dll
@@ -63,7 +63,7 @@ $procs = foreach ($id in $want.Keys) {
   [pscustomobject]@{
     pid = $id; ppid = [int]$p.ParentProcessId; name = $p.Name
     cmd = $p.CommandLine; exe = $p.ExecutablePath
-    cwd = $(if ($id -gt 4) { [SoapProcCwd]::Get($id) } else { $null })
+    cwd = $(if ($id -gt 4) { [ProcCwd]::Get($id) } else { $null })
     started = $(if ($p.CreationDate) { ([DateTimeOffset]$p.CreationDate).ToUnixTimeMilliseconds() } else { 0 })
   }
 }
@@ -77,18 +77,18 @@ const LAUNCH_SCRIPT = String.raw`
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 $startup = New-CimInstance -ClassName Win32_ProcessStartup -ClientOnly -Property @{ ShowWindow = [uint16]0 }
-$r = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $env:SOAP_CMD; CurrentDirectory = $env:SOAP_DIR; ProcessStartupInformation = $startup }
+$r = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $env:MODS_CMD; CurrentDirectory = $env:MODS_DIR; ProcessStartupInformation = $startup }
 if ($r.ReturnValue -ne 0) { throw "Win32_Process.Create returned $($r.ReturnValue)" }
 $r.ProcessId
 `
 
-// 停止：砍掉 SOAP_PID 和它底下的整棵程序樹。不用 taskkill /T：它只看父程序 ID，
+// 停止：砍掉 MODS_PID 和它底下的整棵程序樹。不用 taskkill /T：它只看父程序 ID，
 // 父程序早就結束、PID 被重用時會砍到無關的程序。這裡跟 findServices 一樣，子程序比父程序早開就不算父子。
 // 砍完那個 PID 還在就算失敗。
 const KILL_SCRIPT = String.raw`
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$root = [int]$env:SOAP_PID
+$root = [int]$env:MODS_PID
 $all = @(Get-CimInstance Win32_Process -Property ProcessId, ParentProcessId, CreationDate)
 $byId = @{}; $kids = @{}
 foreach ($p in $all) {

@@ -66,7 +66,7 @@ export async function deleteBranch(io: GitIo, name: string, isRemote: boolean) {
     return
   }
 
-  // 刪除都不跳 toast：那列不見就是刪掉了，toast 還會把焦點搶出 Soap Panel。
+  // 刪除都不跳 toast：那列不見就是刪掉了，toast 還會把焦點搶出 Panel。
   await io.leaveRow()
   await io.setView(NO_MESSAGES)
   await io.refresh()

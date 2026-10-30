@@ -1,14 +1,14 @@
 ---
 name: wiki
-description: Work on the project wiki under .soap/wiki with the user — add to or reorganize existing pages, or set up the project's goals and other groundwork before work starts — and write every change as a draft in .soap/wiki/.drafts for the user to accept in Soap Panel's Wiki tab. Use only when explicitly invoked.
+description: Work on the project wiki under .mods/wiki with the user — add to or reorganize existing pages, or set up the project's goals and other groundwork before work starts — and write every change as a draft in .mods/wiki/.drafts for the user to accept in Panel's Wiki tab. Use only when explicitly invoked.
 disable-model-invocation: true
 ---
 
 # Wiki
 
-Help the user build the project wiki on purpose: add to pages, reorganize them, or lay down the project's goals, scope and other groundwork before the work starts. The wiki is plain Markdown pages under `<session root>/.soap/wiki/`, grouped only by folders. The session root is the primary working directory this session started in, even after a Bash `cd`.
+Help the user build the project wiki on purpose: add to pages, reorganize them, or lay down the project's goals, scope and other groundwork before the work starts. The wiki is plain Markdown pages under `<session root>/.mods/wiki/`, grouped only by folders. The session root is the primary working directory this session started in, even after a Bash `cd`.
 
-Never write, move or delete a page yourself. Every change is a draft the user accepts or discards in Soap Panel's Wiki tab.
+Never write, move or delete a page yourself. Every change is a draft the user accepts or discards in Panel's Wiki tab.
 
 ## Pick the pages
 
@@ -16,7 +16,7 @@ Work on, in this order of preference:
 
 1. The pages, folders or topic written after the command.
 2. The pages the user sent from the Wiki tab earlier in this conversation (a message that starts "The user sent these pages from this project's wiki").
-3. Otherwise list the pages under `.soap/wiki/` (skip folders starting with `.`) and ask which ones, or what to start, with the AskUserQuestion tool.
+3. Otherwise list the pages under `.mods/wiki/` (skip folders starting with `.`) and ask which ones, or what to start, with the AskUserQuestion tool.
 
 Read every page you will change, and skim the folder layout so new pages land where they fit.
 
@@ -28,7 +28,7 @@ Write the pages in the language the user writes to you in. Keep them terse: one 
 
 ## Write the drafts
 
-Write each change as its own file directly under `<session root>/.soap/wiki/.drafts/`, named `<n>-<short-kebab-topic>.md` (`1-goals.md`, `2-delete-style.md`). The user accepts drafts one at a time, so number them in the order they must be accepted. The first line says what the draft does:
+Write each change as its own file directly under `<session root>/.mods/wiki/.drafts/`, named `<n>-<short-kebab-topic>.md` (`1-goals.md`, `2-delete-style.md`). The user accepts drafts one at a time, so number them in the order they must be accepted. The first line says what the draft does:
 
 ```text
 target: project/goals.md
@@ -52,8 +52,8 @@ delete: naming.md
 
 `delete: <page>.md` deletes a page; nothing else goes in the file.
 
-Page paths are relative to `.soap/wiki/`, use `/`, end in `.md`, are lowercase-kebab-case, and have no part starting with a dot. To merge pages, write the merged page with `target:` and then delete each old one. To move a page and change it too, write it at the new path with `target:` and delete the old one, rather than a `move:` plus an edit. Soap Panel checks each draft after every Write or Edit; fix any problem it reports.
+Page paths are relative to `.mods/wiki/`, use `/`, end in `.md`, are lowercase-kebab-case, and have no part starting with a dot. To merge pages, write the merged page with `target:` and then delete each old one. To move a page and change it too, write it at the new path with `target:` and delete the old one, rather than a `move:` plus an edit. Panel checks each draft after every Write or Edit; fix any problem it reports.
 
 ## Hand off
 
-List the drafts you wrote, one line each (what it does to which page), and tell the user to open Soap Panel's Docs tab → Wiki to review them: Accept applies one, Discard drops one.
+List the drafts you wrote, one line each (what it does to which page), and tell the user to open Panel's Docs tab → Wiki to review them: Accept applies one, Discard drops one.

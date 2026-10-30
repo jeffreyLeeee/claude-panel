@@ -1,4 +1,4 @@
-// Claude 用 Write／Edit 寫了 Soap Panel 看得懂的檔案（plan.yaml、wiki 草稿）：寫完檢查格式。
+// Claude 用 Write／Edit 寫了 Panel 看得懂的檔案（plan.yaml、wiki 草稿）：寫完檢查格式。
 
 import type { ToolCallResult } from 'claude-code'
 

@@ -1,4 +1,4 @@
-// Wiki 子分頁（.soap/wiki）的動作：列頁面、勾選、看頁面和草稿、Accept／Discard、Distill、Send。
+// Wiki 子分頁（.mods/wiki）的動作：列頁面、勾選、看頁面和草稿、Accept／Discard、Distill、Send。
 // 不碰 $ 和 atom，用 register.tsx 給的 WikiIo（見 io.ts）。
 
 import type { EngineInterface, FsEntry, ModelForkResult, SessionMessage } from 'claude-code'
@@ -65,7 +65,7 @@ const wikiReads = latestOnly()
 const pageAbs = (root: string, path: string) => `${root}/${wikiPath(path)}`
 const draftAbs = (root: string, id: string) => `${root}/${DRAFTS_PATH}/${id}`
 
-// .soap/wiki 底下的頁面和大小：子資料夾也找（. 開頭的不看，草稿在那裡），最多 WIKI_PAGE_LIMIT 頁，照路徑排。
+// .mods/wiki 底下的頁面和大小：子資料夾也找（. 開頭的不看，草稿在那裡），最多 WIKI_PAGE_LIMIT 頁，照路徑排。
 // 最上層列不出來就丟出去（loadWiki 再看是不存在還是讀不到）。
 async function listPages(io: WikiIo, root: string): Promise<Found[]> {
   const found: Found[] = []
@@ -132,7 +132,7 @@ async function listDrafts(io: WikiIo, root: string): Promise<{ id: string; draft
   return drafts.filter(d => d !== undefined)
 }
 
-// 列出頁面、勾了哪幾頁、草稿。還沒有 .soap/wiki 是還沒有頁面，不是錯誤：列不出來時才看它在不在。
+// 列出頁面、勾了哪幾頁、草稿。還沒有 .mods/wiki 是還沒有頁面，不是錯誤：列不出來時才看它在不在。
 async function loadWiki(io: WikiIo) {
   const isStale = wikiLoads.start()
   const root = await io.root()
@@ -285,7 +285,7 @@ export async function settleWikiDraft(io: WikiIo, isAccept: boolean) {
   await closeWiki(io)
 }
 
-// 刪 .soap/wiki 底下的檔案要按兩次：垃圾桶按了換成打勾，DELETE_ARM_MS 內再按才刪；按別的垃圾桶，原本的就收回。
+// 刪 .mods/wiki 底下的檔案要按兩次：垃圾桶按了換成打勾，DELETE_ARM_MS 內再按才刪；按別的垃圾桶，原本的就收回。
 // 頁面刪了也從勾選拿掉；草稿（.drafts/<id>）只刪草稿，同 Discard。
 export async function deleteWikiFile(io: WikiIo, path: string) {
   if (!isConfirmed(io, `wiki:delete:${path}`)) return io.setWiki({ deleteError: '' })
@@ -342,7 +342,7 @@ const isDistilling = busyFlag(false)
 export const distilling = isDistilling.get
 
 // Distill：只有按了才跑。把這段對話和現有頁面給選的模型，請它寫出值得留下的草稿，
-// 存進 .soap/wiki/.drafts 等人看；頁面一頁都不動。一次只跑一個。說明最後寫用了哪個模型。
+// 存進 .mods/wiki/.drafts 等人看；頁面一頁都不動。一次只跑一個。說明最後寫用了哪個模型。
 export async function distillWiki(io: WikiIo) {
   if (isDistilling.get()) return
   isDistilling.set(io, true)
@@ -389,7 +389,7 @@ export async function sendWikiPages(io: WikiIo) {
   io.toast(`Sent ${pages.length} page${pages.length === 1 ? '' : 's'} to Claude`)
 }
 
-// Claude 寫了 .soap/wiki/.drafts 底下的草稿（wiki skill 會寫）：第一行 Wiki 子分頁看不懂就告訴它怎麼改，也跳個 toast。
+// Claude 寫了 .mods/wiki/.drafts 底下的草稿（wiki skill 會寫）：第一行 Wiki 子分頁看不懂就告訴它怎麼改，也跳個 toast。
 export async function checkDraftWrite(io: Io, path: string) {
   if (parseDraft(await io.readFile(path)) !== null) return undefined
   void io.toast('A wiki draft has no target:, move: or delete: first line; the Wiki tab skips it.')

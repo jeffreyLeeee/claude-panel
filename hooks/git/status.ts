@@ -154,7 +154,7 @@ async function readGit(io: GitIo) {
 
   const changes = parseActiveStatus(status.stdout)
   // 開著工作區檔案的差異就重讀；那個檔案已經沒有變更了，readDiff 給空的，就回到分頁。
-  // 開著的是 commit 裡的檔案就不用動，commit 不會變。內容沒變就不寫，整個 Soap Panel 不會白白重畫；
+  // 開著的是 commit 裡的檔案就不用動，commit 不會變。內容沒變就不寫，整個 Panel 不會白白重畫；
   // 讀的時候換了畫面（按了 Back、換了檔案）也不寫。
   const shown = coverData(await io.getCover(), 'diff')
   const reread = shown !== undefined && shown.commits.length === 0 ? await readDiff(io, changes, shown.path) : undefined

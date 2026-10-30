@@ -1,9 +1,9 @@
-// 名稱照「/」拆成資料夾樹：分支（feature/login、soap/feature/login）和 wiki 頁面（db/schema.md）共用。
+// 名稱照「/」拆成資料夾樹：分支（feature/login、dev/feature/login）和 wiki 頁面（db/schema.md）共用。
 
 type TreeFolder<T> = {
-  /** 從樹根到這裡的路徑（含結尾的 /），例如 `soap/feature/`；同一棵樹裡不重複。 */
+  /** 從樹根到這裡的路徑（含結尾的 /），例如 `dev/feature/`；同一棵樹裡不重複。 */
   path: string
-  /** 畫在列上的名稱：只有一個子資料夾、沒有項目的那層會併進來，例如 `soap/feature/`。 */
+  /** 畫在列上的名稱：只有一個子資料夾、沒有項目的那層會併進來，例如 `dev/feature/`。 */
   label: string
   folders: TreeFolder<T>[]
   /** 直屬的項目，和畫在列上的名稱（扣掉所在資料夾的路徑）。 */
@@ -48,7 +48,7 @@ export function pathTree<T>(list: readonly T[], nameOf: (item: T) => string, ski
   return top
 }
 
-// 只有一個子資料夾、沒有項目的那層跟子資料夾併成一列（soap/ → feature/ 變成 soap/feature/）。樹是剛建的，直接改。
+// 只有一個子資料夾、沒有項目的那層跟子資料夾併成一列（dev/ → feature/ 變成 dev/feature/）。樹是剛建的，直接改。
 function compact<T>(f: TreeFolder<T>): TreeFolder<T> {
   const only = f.folders[0]
   if (f.items.length === 0 && f.folders.length === 1 && only !== undefined) {
